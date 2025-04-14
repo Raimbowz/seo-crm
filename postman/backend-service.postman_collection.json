@@ -1,0 +1,929 @@
+{
+	"info": {
+		"_postman_id": "f1e2d3c4-b5a6-9876-5432-1fedcba98765",
+		"name": "SEO CRM - Backend Service",
+		"description": "API collection for Backend Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login (SSO)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"access_token\", jsonData.accessToken);",
+									"pm.environment.set(\"refresh_token\", jsonData.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{sso_url}}/auth/login",
+							"host": [
+								"{{sso_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login using the SSO service to get an access token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication-related requests"
+		},
+		{
+			"name": "Cities",
+			"item": [
+				{
+					"name": "Get All Cities",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/cities",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"cities"
+							]
+						},
+						"description": "Get all cities"
+					},
+					"response": []
+				},
+				{
+					"name": "Get City by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/cities/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"cities",
+								"1"
+							]
+						},
+						"description": "Get city by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create City",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New York\"\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/cities",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"cities"
+							]
+						},
+						"description": "Create a new city"
+					},
+					"response": []
+				},
+				{
+					"name": "Update City",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated City Name\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/cities/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"cities",
+								"1"
+							]
+						},
+						"description": "Update city by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete City",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/cities/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"cities",
+								"1"
+							]
+						},
+						"description": "Delete city by ID"
+					},
+					"response": []
+				}
+			],
+			"description": "City management endpoints"
+		},
+		{
+			"name": "Blocks",
+			"item": [
+				{
+					"name": "Get All Blocks",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/blocks",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"blocks"
+							]
+						},
+						"description": "Get all blocks"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Block by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/blocks/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"blocks",
+								"1"
+							]
+						},
+						"description": "Get block by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Block",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Hero Block\",\n    \"type\": \"header\",\n    \"content\": \"<div class=\\\"hero\\\">Welcome to our site</div>\"\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/blocks",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"blocks"
+							]
+						},
+						"description": "Create a new block"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Block",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Block\",\n    \"content\": \"<div class=\\\"hero\\\">Updated content</div>\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/blocks/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"blocks",
+								"1"
+							]
+						},
+						"description": "Update block by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Block",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/blocks/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"blocks",
+								"1"
+							]
+						},
+						"description": "Delete block by ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Block management endpoints"
+		},
+		{
+			"name": "Templates",
+			"item": [
+				{
+					"name": "Get All Templates",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/templates",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"templates"
+							]
+						},
+						"description": "Get all templates"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Template by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/templates/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"templates",
+								"1"
+							]
+						},
+						"description": "Get template by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Template",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Landing Page Template\",\n    \"description\": \"A template for landing pages\"\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/templates",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"templates"
+							]
+						},
+						"description": "Create a new template"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Template",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Template\",\n    \"description\": \"Updated template description\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/templates/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"templates",
+								"1"
+							]
+						},
+						"description": "Update template by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Template",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/templates/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"templates",
+								"1"
+							]
+						},
+						"description": "Delete template by ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Template management endpoints"
+		},
+		{
+			"name": "Pages",
+			"item": [
+				{
+					"name": "Get All Pages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/pages",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"pages"
+							]
+						},
+						"description": "Get all pages"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Page by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/pages/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"pages",
+								"1"
+							]
+						},
+						"description": "Get page by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Page",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Home Page\",\n    \"slug\": \"home\",\n    \"metaDescription\": \"Welcome to our website\",\n    \"metaKeywords\": \"home, website, landing\",\n    \"cityId\": 1,\n    \"templateId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/pages",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"pages"
+							]
+						},
+						"description": "Create a new page"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Page",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Home Page\",\n    \"metaDescription\": \"Updated meta description\",\n    \"metaKeywords\": \"updated, keywords\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/pages/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"pages",
+								"1"
+							]
+						},
+						"description": "Update page by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Page",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/pages/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"pages",
+								"1"
+							]
+						},
+						"description": "Delete page by ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Page management endpoints"
+		},
+		{
+			"name": "Partners",
+			"item": [
+				{
+					"name": "Get All Partners",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/partners",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"partners"
+							]
+						},
+						"description": "Get all partners"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Partner by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/partners/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"partners",
+								"1"
+							]
+						},
+						"description": "Get partner by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Partner",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Acme Inc.\",\n    \"contactPerson\": \"John Doe\",\n    \"email\": \"john@acme.com\",\n    \"phone\": \"+1234567890\",\n    \"website\": \"https://www.acme.com\"\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/partners",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"partners"
+							]
+						},
+						"description": "Create a new partner"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Partner",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Partner\",\n    \"contactPerson\": \"Jane Smith\",\n    \"phone\": \"+1987654321\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/partners/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"partners",
+								"1"
+							]
+						},
+						"description": "Update partner by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Partner",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/partners/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"partners",
+								"1"
+							]
+						},
+						"description": "Delete partner by ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Partner management endpoints"
+		},
+		{
+			"name": "Leads",
+			"item": [
+				{
+					"name": "Get All Leads",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/leads",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"leads"
+							]
+						},
+						"description": "Get all leads"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Lead by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/leads/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"leads",
+								"1"
+							]
+						},
+						"description": "Get lead by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Lead",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"John\",\n    \"lastName\": \"Smith\",\n    \"email\": \"john.smith@example.com\",\n    \"phone\": \"+1234567890\",\n    \"message\": \"I need more information about your services\",\n    \"pageId\": 1,\n    \"status\": \"new\"\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/leads",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"leads"
+							]
+						},
+						"description": "Create a new lead"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Lead",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"contacted\"\n}"
+						},
+						"url": {
+							"raw": "{{backend_url}}/leads/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"leads",
+								"1"
+							]
+						},
+						"description": "Update lead status"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Lead",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{backend_url}}/leads/1",
+							"host": [
+								"{{backend_url}}"
+							],
+							"path": [
+								"leads",
+								"1"
+							]
+						},
+						"description": "Delete lead by ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Lead management endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "backend_url",
+			"value": "http://localhost:3002",
+			"type": "string"
+		},
+		{
+			"key": "sso_url",
+			"value": "http://localhost:3001",
+			"type": "string"
+		}
+	]
+} 
