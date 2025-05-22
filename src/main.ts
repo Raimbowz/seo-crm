@@ -7,6 +7,9 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AppConfigService } from './config/config.service';
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
+import * as path from 'path';
 
 async function bootstrap() {
   // Use Fastify instead of Express
@@ -16,9 +19,23 @@ async function bootstrap() {
   );
 
   const configService = app.get(AppConfigService);
+  app.register(multipart as any, {
+    limits: {
+      fileSize: 20 * 1024 * 1024 // 20 MB
+    }
+  });
+  app.register(fastifyStatic as any, {
+    root: path.join(__dirname, '../files/images'),
+    prefix: '/images/static/',
+    decorateReply: false,
+  });
 
   // Enable CORS
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   // Global validation pipe
   app.useGlobalPipes(

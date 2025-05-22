@@ -24,6 +24,7 @@ import { CreateCityDto } from './dto/create-city.dto';
 import { UpdateCityDto } from './dto/update-city.dto';
 import { City } from './entities/city.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { BadRequestException } from '@nestjs/common';
 
 @ApiTags('cities')
 @Controller('cities')
@@ -48,8 +49,13 @@ export class CitiesController {
     description: 'List of all cities',
     type: [City],
   })
-  findAll(): Promise<City[]> {
-    return this.citiesService.findAll();
+  async findAll()  {
+    try {
+      return await this.citiesService.findAll();
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   @Get(':id')
@@ -83,5 +89,12 @@ export class CitiesController {
   })
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.citiesService.remove(id);
+  }
+
+  @Patch('bulk')
+  @ApiOperation({ summary: 'Bulk update cities' })
+  @ApiOkResponse({ description: 'Cities updated', type: [City] })
+  async updateMany(@Body() dtos: Array<{ id: number } & UpdateCityDto>): Promise<City[]> {
+    return this.citiesService.updateMany(dtos)
   }
 }

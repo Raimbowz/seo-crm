@@ -5,6 +5,8 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
+  isUUID,
   MaxLength,
 } from 'class-validator';
 
@@ -46,10 +48,15 @@ export class CreatePageDto {
   @IsNotEmpty()
   cityId: number;
 
-  @ApiProperty({ example: 1, description: 'Template ID' })
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'Template ID' })
+  @IsUUID()
+  @IsNotEmpty()
+  templateId: string;
+
+  @ApiProperty({ example: 1, description: 'Site ID' })
   @IsInt()
   @IsNotEmpty()
-  templateId: number;
+  siteId: number;
 
   @ApiProperty({
     example: 1,
@@ -68,4 +75,14 @@ export class CreatePageDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @ApiProperty({ example: 1, description: 'ID родительской страницы', required: false })
+  @IsOptional()
+  @IsInt()
+  parentId?: number;
+
+  @ApiProperty({ example: true, description: 'Whether the page is global', required: false })
+  @IsBoolean()
+  @IsOptional()
+  isGlobal?: boolean;
 }

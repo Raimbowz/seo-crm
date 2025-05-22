@@ -43,6 +43,10 @@ export class City {
   @Column({ default: true })
   isActive: boolean;
 
+  @ApiProperty({ example: false, description: 'Whether the city is main' })
+  @Column({ default: false })
+  isMain: boolean;
+
   @ApiProperty({
     example: '2023-01-01T00:00:00Z',
     description: 'Creation date',

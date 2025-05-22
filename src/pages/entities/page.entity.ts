@@ -5,11 +5,12 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 import { City } from '../../cities/entities/city.entity';
 import { Partner } from '../../partners/entities/partner.entity';
 import { Template } from '../../templates/entities/template.entity';
-
+import { Site } from '../../sites/entities/site.entity';
 @Entity('pages')
 export class Page {
   @ApiProperty({ example: 1, description: 'Unique identifier' })
@@ -42,9 +43,13 @@ export class Page {
   @Column()
   cityId: number;
 
-  @ApiProperty({ example: 1, description: 'Template ID' })
+  @ApiProperty({ example: 1, description: 'Site ID' })
   @Column()
-  templateId: number;
+  siteId: number;
+
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'Template ID' })
+  @Column()
+  templateId: string;
 
   @ApiProperty({ example: 1, description: 'Partner ID', required: false })
   @Column({ nullable: true })
@@ -53,6 +58,10 @@ export class Page {
   @ApiProperty({ example: true, description: 'Whether the page is active' })
   @Column({ default: true })
   isActive: boolean;
+
+  @ApiProperty({ example: true, description: 'Whether the page is global' })
+  @Column({ default: false })
+  isGlobal: boolean;
 
   @ApiProperty({
     example: '2023-05-15T10:30:00Z',
@@ -72,6 +81,16 @@ export class Page {
   })
   updatedAt: Date;
 
+  @Column({ nullable: true })
+  parentId: number;
+
+  @ManyToOne(() => Page, (page) => page.children, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'parentId' })
+  parent: Page;
+
+  @OneToMany(() => Page, (page) => page.parent)
+  children: Page[];
+
   @ManyToOne(() => City)
   @JoinColumn({ name: 'cityId' })
   city: City;
@@ -83,4 +102,8 @@ export class Page {
   @ManyToOne(() => Partner, { nullable: true })
   @JoinColumn({ name: 'partnerId' })
   partner: Partner;
+
+  @ManyToOne(() => Site)
+  @JoinColumn({ name: 'siteId' })
+  site: Site;
 }

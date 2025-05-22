@@ -892,6 +892,30 @@
 				}
 			],
 			"description": "Lead management endpoints"
+		},
+		{
+			"name": "Get Site with Pages, Templates, Blocks",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{backend_url}}/sites/1",
+					"host": [
+						"{{backend_url}}"
+					],
+					"path": [
+						"sites",
+						"1"
+					]
+				},
+				"description": "Получить сайт по id с вложенными страницами, шаблонами и блоками"
+			},
+			"response": []
 		}
 	],
 	"event": [

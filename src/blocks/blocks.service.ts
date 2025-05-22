@@ -22,7 +22,12 @@ export class BlocksService {
   }
 
   async findAll(): Promise<Block[]> {
-    return await this.blockRepository.find();
+    try {
+      return await this.blockRepository.find();
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   async findOne(id: number): Promise<Block> {
@@ -44,5 +49,9 @@ export class BlocksService {
   async remove(id: number): Promise<void> {
     const block = await this.findOne(id);
     await this.blockRepository.remove(block);
+  }
+
+  async findByIds(ids: number[]): Promise<Block[]> {
+    return this.blockRepository.findByIds(ids);
   }
 }

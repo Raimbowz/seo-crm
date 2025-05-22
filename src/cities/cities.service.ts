@@ -73,4 +73,14 @@ export class CitiesService {
     const city = await this.findOne(id);
     await this.citiesRepository.remove(city);
   }
+
+  async updateMany(dtos: Array<{ id: number } & UpdateCityDto>): Promise<City[]> {
+    const result: City[] = [];
+    for (const dto of dtos) {
+      const { id, ...updateData } = dto;
+      const updated = await this.update(id, updateData);
+      result.push(updated);
+    }
+    return result;
+  }
 }

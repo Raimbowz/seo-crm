@@ -27,6 +27,10 @@ export class PagesService {
     }
 
     const page = this.pageRepository.create(createPageDto);
+    if (createPageDto.parentId) {
+      page.parentId = createPageDto.parentId;
+      page.parent = { id: createPageDto.parentId } as any;
+    }
     return this.pageRepository.save(page);
   }
 
@@ -62,13 +66,44 @@ export class PagesService {
         throw new BadRequestException('Page with this slug already exists');
       }
     }
-
+    page.templateId = updatePageDto.templateId || page.templateId;
     this.pageRepository.merge(page, updatePageDto);
-    return this.pageRepository.save(page);
+
+    if (updatePageDto.templateId) {
+      page.templateId = updatePageDto.templateId;
+      page.template = { id: updatePageDto.templateId } as any;
+    }
+
+    if (updatePageDto.parentId !== undefined) {
+      page.parentId = updatePageDto.parentId;
+      page.parent = updatePageDto.parentId ? { id: updatePageDto.parentId } as any : null;
+    }
+
+    if (updatePageDto.partnerId) {
+      page.partnerId = updatePageDto.partnerId;
+      page.partner = { id: updatePageDto.partnerId } as any;
+    }
+
+    if (updatePageDto.siteId) {
+      page.siteId = updatePageDto.siteId || page.siteId;
+      page.site = { id: updatePageDto.siteId } as any;
+    }
+
+ 
+    let res = await this.pageRepository.save(page);
+    console.log('res:', res)
+    return res;
   }
 
   async remove(id: number): Promise<void> {
     const page = await this.findOne(id);
     await this.pageRepository.remove(page);
+  }
+
+  async findBySiteId(siteId: number): Promise<Page[]> {
+    return this.pageRepository.find({
+      where: { site: { id: siteId } },
+      relations: ['template'],
+    });
   }
 }

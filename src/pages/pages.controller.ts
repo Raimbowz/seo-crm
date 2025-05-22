@@ -5,7 +5,7 @@ import {
   Body,
   Param,
   Delete,
-  Put,
+  Patch,
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
@@ -20,15 +20,19 @@ import { PagesService } from './pages.service';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
 import { Page } from './entities/page.entity';
+import { RolesGuard } from '../auth/guards/roles.guard';  
+import { Roles } from '../auth/decorators/roles.decorator';
+import { UserRole } from '../enums/user-roles.enum';
 
 @ApiTags('pages')
 @Controller('pages')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class PagesController {
   constructor(private readonly pagesService: PagesService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Create a new page' })
   @ApiResponse({
     status: 201,
@@ -41,6 +45,7 @@ export class PagesController {
   }
 
   @Get()
+  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Get all pages' })
   @ApiResponse({ status: 200, description: 'Return all pages', type: [Page] })
   findAll(): Promise<Page[]> {
@@ -48,6 +53,7 @@ export class PagesController {
   }
 
   @Get(':id')
+  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Get a page by id' })
   @ApiResponse({ status: 200, description: 'Return the page', type: Page })
   @ApiResponse({ status: 404, description: 'Page not found' })
@@ -55,7 +61,8 @@ export class PagesController {
     return this.pagesService.findOne(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
+  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Update a page' })
   @ApiResponse({
     status: 200,
@@ -68,10 +75,12 @@ export class PagesController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePageDto: UpdatePageDto,
   ): Promise<Page> {
+    console.log('updatePageDto:', updatePageDto)
     return this.pagesService.update(id, updatePageDto);
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Delete a page' })
   @ApiResponse({ status: 200, description: 'Page deleted successfully' })
   @ApiResponse({ status: 404, description: 'Page not found' })

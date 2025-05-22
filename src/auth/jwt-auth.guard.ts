@@ -14,7 +14,7 @@ import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private configService: AppConfigService,
@@ -54,9 +54,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
   }
 
-  handleRequest(err: any, user: any) {
+  handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
     if (err || !user) {
-      throw err;
+      if (info && info.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('JWT token expired');
+      }
+      if (info && info.message) {
+        throw new UnauthorizedException(info.message);
+      }
+      throw new UnauthorizedException('Invalid or missing JWT token');
     }
     return user;
   }

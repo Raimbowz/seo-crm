@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { BlockLocale } from '../../blocks-locales/entities/block-locale.entity';
+import { Site } from 'src/sites/entities/site.entity';
 
 export enum BlockType {
   HEADER = 'header',
@@ -21,8 +23,8 @@ export class Block {
   name: string;
 
   @ApiProperty({ description: 'The content of the block' })
-  @Column('text')
-  content: string;
+  @Column('jsonb')
+  content: JSON;
 
   @ApiProperty({ description: 'The type of the block' })
   @Column()
@@ -32,6 +34,17 @@ export class Block {
   @Column({ default: true })
   isActive: boolean;
 
+  @ApiProperty({ description: 'The site id of the block' })
+  @Column()
+  siteId: number;
+
+  @OneToMany(() => BlockLocale, locale => locale.block)
+  locales: BlockLocale[];
+
+  @ApiProperty({ description: 'Whether the block is global' })
+  @Column({ default: false })
+  isGlobal: boolean;
+
   @ApiProperty({ description: 'Creation timestamp' })
   @CreateDateColumn()
   createdAt: Date;
@@ -39,4 +52,7 @@ export class Block {
   @ApiProperty({ description: 'Last update timestamp' })
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => Site, site => site.blocks)
+  site: Site; 
 }

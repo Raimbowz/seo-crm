@@ -40,4 +40,13 @@ export class CreateCityDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @ApiProperty({
+    example: false,
+    description: 'Whether the city is main',
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isMain?: boolean;
 }
