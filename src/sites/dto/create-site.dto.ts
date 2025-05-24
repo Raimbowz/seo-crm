@@ -56,14 +56,6 @@ export class CreateSiteDto {
   @IsNumber()
   ownerId: number;
 
-  @ApiProperty({ example: 1, description: 'Site ID' })
-  @IsNumber()
-  siteId: number;
-
-  @ApiProperty({ example: 1, description: 'Template ID' })
-  @IsNumber()
-  templateId: number;
-
   @ApiProperty({ example: true, description: 'Whether the site is active', required: false })
   @IsOptional()
   @IsBoolean()
