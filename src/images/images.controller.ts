@@ -21,6 +21,7 @@ export class ImagesController {
   @ApiBody({ type: CreateImageDto })
   @ApiResponse({ status: 201, type: Image, description: 'Image created' })
   create(@Body() createImageDto: CreateImageDto): Promise<Image> {
+    console.log('💾 Creating DB record:', createImageDto);
     return this.imagesService.create(createImageDto);
   }
 
@@ -71,6 +72,7 @@ export class ImagesController {
   @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
   @ApiResponse({ status: 201, schema: { example: { link: '/images/id.webp', url: '/images/id.webp', fullUrl: 'http://localhost:3100/images/id.webp' } }, description: 'Uploaded file info from image service' })
   async uploadFile(@Req() req: FastifyRequest) {
+    console.log('🔥 Upload endpoint called - this should NOT create DB record');
     // @fastify/multipart required
     // @ts-ignore
     const parts = req.parts();
