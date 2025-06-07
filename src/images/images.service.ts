@@ -9,7 +9,7 @@ import { UpdateImageDto } from './dto/update-image.dto';
 
 @Injectable()
 export class ImagesService {
-  private readonly imageServiceUrl = process.env.IMAGE_SERVICE_URL || 'https://images.cms-s.ru';
+  private readonly imageServiceUrl = process.env.IMAGE_SERVICE_URL || 'http://localhost:3100';
 
   constructor(
     @InjectRepository(Image)
@@ -56,15 +56,15 @@ export class ImagesService {
       formData.append('file', blob, filename);
 
       const response = await firstValueFrom(
-        this.httpService.post(`${this.imageServiceUrl}/upload`, formData, {
+        this.httpService.post(`${this.imageServiceUrl}/images/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         })
       );
 
-      // Предполагаем, что внешний сервис возвращает { url: "полная ссылка на изображение" }
-      return response.data.url;
+      // Локальный сервис возвращает { imageId, urls: { processed: "/images/imageId" } }
+      return response.data.urls.processed;
     } catch (error) {
       throw new Error(`Failed to upload to external service: ${error.message}`);
     }
@@ -91,7 +91,7 @@ export class ImagesService {
       return link;
     }
     
-    // Иначе строим полную ссылку через внешний сервис
+    // Иначе строим полную ссылку через локальный сервис
     return `${this.imageServiceUrl}${link.startsWith('/') ? '' : '/'}${link}`;
   }
 } 
