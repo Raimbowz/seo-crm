@@ -10,23 +10,24 @@ import { UserRole } from '../enums/user-roles.enum';
 
 @ApiTags('Sites')
 @Controller('sites')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class SitesController {
   constructor(private readonly sitesService: SitesService) {}
 
   @Post()
-  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Создать сайт' })
   @ApiCreatedResponse({ description: 'Сайт создан' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   async create(@Body() dto: CreateSiteDto) {
     return await this.sitesService.create(dto);
   }
 
   @Get()
-  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Получить все сайты (admin: все, user: только доступные)' })
   @ApiOkResponse({ description: 'Список сайтов' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   async findAll(@Req() req) {
     const user = req.user;
     return await this.sitesService.findAllByUser(user?.id, user?.role);
@@ -40,6 +41,7 @@ export class SitesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Обновить сайт' })
   @ApiOkResponse({ description: 'Сайт обновлен' })
@@ -48,6 +50,7 @@ export class SitesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Удалить сайт' })
   @ApiOkResponse({ description: 'Сайт удален' })
