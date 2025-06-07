@@ -56,6 +56,7 @@ export class SitesService {
 
   async findOneWithPagesAndTemplatesAndBlocks(id: number | string) {
     const site = typeof id === 'number' ? await this.siteRepository.findOneBy({ id }) : await this.siteRepository.findOneBy({ domain: id });
+    console.log('site:', site,'id:',id);
     if (!site) return null;
 
     // Получаем все страницы этого сайта
