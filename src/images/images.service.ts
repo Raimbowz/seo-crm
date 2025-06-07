@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import * as FormData from 'form-data';
 import { Image } from './entities/image.entity';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
@@ -51,14 +52,23 @@ export class ImagesService {
 
   async uploadToExternalService(buffer: Buffer, filename: string): Promise<string> {
     try {
+      // Определяем content-type по расширению файла
+      const ext = filename.toLowerCase().split('.').pop();
+      let contentType = 'image/jpeg';
+      if (ext === 'png') contentType = 'image/png';
+      else if (ext === 'webp') contentType = 'image/webp';
+      else if (ext === 'gif') contentType = 'image/gif';
+
       const formData = new FormData();
-      const blob = new Blob([buffer]);
-      formData.append('file', blob, filename);
+      formData.append('file', buffer, {
+        filename: filename,
+        contentType: contentType,
+      });
 
       const response = await firstValueFrom(
         this.httpService.post(`${this.imageServiceUrl}/images/upload`, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            ...formData.getHeaders(),
           },
         })
       );
@@ -66,7 +76,8 @@ export class ImagesService {
       // Локальный сервис возвращает { imageId, urls: { processed: "/images/imageId" } }
       return response.data.urls.processed;
     } catch (error) {
-      throw new Error(`Failed to upload to external service: ${error.message}`);
+      console.error('Upload error details:', error.response?.data || error.message);
+      throw new Error(`Failed to upload to external service: ${error.response?.data?.message || error.message}`);
     }
   }
 
