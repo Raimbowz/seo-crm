@@ -15,7 +15,7 @@ export class SitesController {
   constructor(private readonly sitesService: SitesService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Создать сайт' })
+  @ApiOperation({ summary: 'Создать сайт 2' })
   @ApiCreatedResponse({ description: 'Сайт создан' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN,UserRole.CREATOR)
@@ -24,7 +24,7 @@ export class SitesController {
   }
 
 
-  
+
 
   @Get()
   @ApiOperation({ summary: 'Получить все сайты (admin: все, user: только доступные)' })
