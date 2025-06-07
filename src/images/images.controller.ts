@@ -66,10 +66,10 @@ export class ImagesController {
   }
 
   @Post('upload')
-  @ApiOperation({ summary: 'Upload image file to external service' })
+  @ApiOperation({ summary: 'Upload image file to image service (without DB record)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
-  @ApiResponse({ status: 201, schema: { example: { url: 'https://images.cms-s.ru/path/to/image.jpg' } }, description: 'Uploaded file url from external service' })
+  @ApiResponse({ status: 201, schema: { example: { link: '/images/id.webp', url: '/images/id.webp', fullUrl: 'http://localhost:3100/images/id.webp' } }, description: 'Uploaded file info from image service' })
   async uploadFile(@Req() req: FastifyRequest) {
     // @fastify/multipart required
     // @ts-ignore
@@ -97,33 +97,15 @@ export class ImagesController {
     
     if (!fileUrl || !uploadResult) throw new Error('No file uploaded');
     
-    // Проверяем, не существует ли уже запись с таким link
-    const existingImage = await this.imagesService.findByLink(fileUrl);
-    let imageRecord;
-    
-    if (existingImage) {
-      // Обновляем существующую запись
-      imageRecord = await this.imagesService.update(existingImage.id, {
-        name: uploadResult.originalFilename || filename,
-        group: 'images',
-      });
-    } else {
-      // Создаем новую запись в базе данных
-      imageRecord = await this.imagesService.create({
-        name: uploadResult.originalFilename || filename,
-        link: fileUrl,
-        group: 'images',
-      });
-    }
-    
+    // Возвращаем только информацию о файле без создания записи в БД
+    // Запись в БД будет создана при сохранении формы
     return {
-      id: imageRecord.id,
-      name: imageRecord.name,
-      link: imageRecord.link,
+      link: fileUrl,
       url: fileUrl,
       fullUrl: this.imagesService.getFullImageUrl(fileUrl),
       format: uploadResult.format,
       originalFilename: uploadResult.originalFilename,
+      filename: uploadResult.filename,
       size: uploadResult.size,
     };
   }
