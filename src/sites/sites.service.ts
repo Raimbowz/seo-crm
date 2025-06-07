@@ -59,7 +59,7 @@ export class SitesService {
     if (!site) return null;
 
     // Получаем все страницы этого сайта
-    const pages = await this.pagesService.findBySiteId(id);
+    const pages = await this.pagesService.findBySiteId(site.id);
 
     // Получаем все активные переменные
     const variablesArr = await this.variablesService.getAllVariables();
