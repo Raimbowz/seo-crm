@@ -75,6 +75,7 @@ export class ImagesController {
     // @ts-ignore
     const parts = req.parts();
     let fileUrl = '';
+    let filename = '';
     
     for await (const part of parts) {
       if (part.type === 'file') {
@@ -84,17 +85,29 @@ export class ImagesController {
           chunks.push(chunk);
         }
         const buffer = Buffer.concat(chunks);
+        filename = part.filename || 'uploaded-image';
         
         // Загружаем на внешний сервис
-        fileUrl = await this.imagesService.uploadToExternalService(buffer, part.filename);
+        fileUrl = await this.imagesService.uploadToExternalService(buffer, filename);
         break;
       }
     }
     
     if (!fileUrl) throw new Error('No file uploaded');
     
+    // Создаем запись в базе данных
+    const imageRecord = await this.imagesService.create({
+      name: filename,
+      link: fileUrl,
+      group: 'images',
+    });
+    
     return {
+      id: imageRecord.id,
+      name: imageRecord.name,
+      link: imageRecord.link,
       url: fileUrl,
+      fullUrl: this.imagesService.getFullImageUrl(fileUrl),
     };
   }
 } 

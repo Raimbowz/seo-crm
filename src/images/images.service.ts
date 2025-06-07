@@ -64,6 +64,8 @@ export class ImagesService {
         filename: filename,
         contentType: contentType,
       });
+      // Добавляем параметры оптимизации
+      formData.append('optimize', 'true');
 
       const response = await firstValueFrom(
         this.httpService.post(`${this.imageServiceUrl}/images/upload`, formData, {
