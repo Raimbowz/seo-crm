@@ -40,6 +40,13 @@ export class SitesController {
     return await this.sitesService.findOneWithPagesAndTemplatesAndBlocks(Number(id));
   }
 
+  @Get('domain/:domain')
+  @ApiOperation({ summary: 'Получить сайт по домену' })
+  @ApiOkResponse({ description: 'Сайт по домену' })
+  async findOneByDomain(@Param('domain') domain: string) {
+    return await this.sitesService.findOneWithPagesAndTemplatesAndBlocks(domain);
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN,UserRole.CREATOR)

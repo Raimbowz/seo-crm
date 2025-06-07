@@ -54,8 +54,8 @@ export class SitesService {
     return await this.siteRepository.delete(id);
   }
 
-  async findOneWithPagesAndTemplatesAndBlocks(id: number) {
-    const site = await this.siteRepository.findOneBy({ id });
+  async findOneWithPagesAndTemplatesAndBlocks(id: number | string) {
+    const site = typeof id === 'number' ? await this.siteRepository.findOneBy({ id }) : await this.siteRepository.findOneBy({ domain: id });
     if (!site) return null;
 
     // Получаем все страницы этого сайта
