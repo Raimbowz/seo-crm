@@ -76,6 +76,7 @@ export class ImagesController {
     const parts = req.parts();
     let fileUrl = '';
     let filename = '';
+    let uploadResult: any = null;
     
     for await (const part of parts) {
       if (part.type === 'file') {
@@ -88,16 +89,17 @@ export class ImagesController {
         filename = part.filename || 'uploaded-image';
         
         // Загружаем на внешний сервис
-        fileUrl = await this.imagesService.uploadToExternalService(buffer, filename);
+        uploadResult = await this.imagesService.uploadToExternalService(buffer, filename);
+        fileUrl = uploadResult.urls.processed;
         break;
       }
     }
     
-    if (!fileUrl) throw new Error('No file uploaded');
+    if (!fileUrl || !uploadResult) throw new Error('No file uploaded');
     
-    // Создаем запись в базе данных
+    // Создаем запись в базе данных с оригинальным именем и WebP файлом
     const imageRecord = await this.imagesService.create({
-      name: filename,
+      name: uploadResult.originalFilename || filename,
       link: fileUrl,
       group: 'images',
     });
@@ -108,6 +110,9 @@ export class ImagesController {
       link: imageRecord.link,
       url: fileUrl,
       fullUrl: this.imagesService.getFullImageUrl(fileUrl),
+      format: uploadResult.format,
+      originalFilename: uploadResult.originalFilename,
+      size: uploadResult.size,
     };
   }
 } 

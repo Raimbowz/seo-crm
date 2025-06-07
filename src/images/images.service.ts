@@ -50,7 +50,7 @@ export class ImagesService {
     await this.imageRepository.remove(image);
   }
 
-  async uploadToExternalService(buffer: Buffer, filename: string): Promise<string> {
+  async uploadToExternalService(buffer: Buffer, filename: string): Promise<any> {
     try {
       // Определяем content-type по расширению файла
       const ext = filename.toLowerCase().split('.').pop();
@@ -75,8 +75,8 @@ export class ImagesService {
         })
       );
 
-      // Локальный сервис возвращает { imageId, urls: { processed: "/images/imageId" } }
-      return response.data.urls.processed;
+      // Локальный сервис возвращает полную информацию об изображении
+      return response.data;
     } catch (error) {
       console.error('Upload error details:', error.response?.data || error.message);
       throw new Error(`Failed to upload to external service: ${error.response?.data?.message || error.message}`);
