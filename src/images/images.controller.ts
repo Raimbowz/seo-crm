@@ -97,12 +97,24 @@ export class ImagesController {
     
     if (!fileUrl || !uploadResult) throw new Error('No file uploaded');
     
-    // Создаем запись в базе данных с оригинальным именем и WebP файлом
-    const imageRecord = await this.imagesService.create({
-      name: uploadResult.originalFilename || filename,
-      link: fileUrl,
-      group: 'images',
-    });
+    // Проверяем, не существует ли уже запись с таким link
+    const existingImage = await this.imagesService.findByLink(fileUrl);
+    let imageRecord;
+    
+    if (existingImage) {
+      // Обновляем существующую запись
+      imageRecord = await this.imagesService.update(existingImage.id, {
+        name: uploadResult.originalFilename || filename,
+        group: 'images',
+      });
+    } else {
+      // Создаем новую запись в базе данных
+      imageRecord = await this.imagesService.create({
+        name: uploadResult.originalFilename || filename,
+        link: fileUrl,
+        group: 'images',
+      });
+    }
     
     return {
       id: imageRecord.id,

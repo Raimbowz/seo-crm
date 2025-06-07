@@ -33,6 +33,10 @@ export class ImagesService {
     return image;
   }
 
+  async findByLink(link: string): Promise<Image | null> {
+    return this.imageRepository.findOne({ where: { link } });
+  }
+
   async update(id: number, updateImageDto: UpdateImageDto): Promise<Image> {
     const image = await this.findOne(id);
     Object.assign(image, updateImageDto);
@@ -104,7 +108,7 @@ export class ImagesService {
       return link;
     }
     
-    // Иначе строим полную ссылку через локальный сервис
-    return `${this.imageServiceUrl}${link.startsWith('/') ? '' : '/'}${link}`;
+    // Для всех относительных ссылок используем локальный сервис
+    return `${this.imageServiceUrl}${link.startsWith('/') ? link : '/' + link}`;
   }
 } 
