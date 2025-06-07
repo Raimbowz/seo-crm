@@ -27,16 +27,25 @@ export class ImagesController {
   @Get()
   @ApiOperation({ summary: 'Get all images' })
   @ApiResponse({ status: 200, type: [Image], description: 'Array of images' })
-  findAll(): Promise<Image[]> {
-    return this.imagesService.findAll();
+  async findAll(): Promise<any[]> {
+    const images = await this.imagesService.findAll();
+    // Добавляем полные URL для каждого изображения
+    return images.map(image => ({
+      ...image,
+      fullUrl: this.imagesService.getFullImageUrl(image.link),
+    }));
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get image by id' })
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, type: Image, description: 'Image by id' })
-  findOne(@Param('id') id: string): Promise<Image> {
-    return this.imagesService.findOne(Number(id));
+  async findOne(@Param('id') id: string): Promise<any> {
+    const image = await this.imagesService.findOne(Number(id));
+    return {
+      ...image,
+      fullUrl: this.imagesService.getFullImageUrl(image.link),
+    };
   }
 
   @Patch(':id')
@@ -57,32 +66,33 @@ export class ImagesController {
   }
 
   @Post('upload')
-  @ApiOperation({ summary: 'Upload image file (fastify)' })
+  @ApiOperation({ summary: 'Upload image file to external service' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
-  @ApiResponse({ status: 201, schema: { example: { url: '/images/static/filename.jpg' } }, description: 'Uploaded file url' })
+  @ApiResponse({ status: 201, schema: { example: { url: 'https://images.cms-s.ru/path/to/image.jpg' } }, description: 'Uploaded file url from external service' })
   async uploadFile(@Req() req: FastifyRequest) {
     // @fastify/multipart required
     // @ts-ignore
     const parts = req.parts();
     let fileUrl = '';
+    
     for await (const part of parts) {
       if (part.type === 'file') {
-        const ext = path.extname(part.filename);
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9) + ext;
-        const saveTo = path.join(uploadPath, unique);
-        await new Promise<void>((resolve, reject) => {
-          const ws = fs.createWriteStream(saveTo);
-          part.file.pipe(ws);
-          ws.on('finish', () => resolve());
-          ws.on('error', (err) => reject(err));
-          part.file.on('error', (err) => reject(err));
-        });
-        fileUrl = `/images/static/${unique}`;
+        // Читаем файл в буфер
+        const chunks: Buffer[] = [];
+        for await (const chunk of part.file) {
+          chunks.push(chunk);
+        }
+        const buffer = Buffer.concat(chunks);
+        
+        // Загружаем на внешний сервис
+        fileUrl = await this.imagesService.uploadToExternalService(buffer, part.filename);
         break;
       }
     }
+    
     if (!fileUrl) throw new Error('No file uploaded');
+    
     return {
       url: fileUrl,
     };
