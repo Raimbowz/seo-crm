@@ -33,7 +33,6 @@ export class SitesController {
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN,UserRole.CREATOR)
   @ApiOperation({ summary: 'Получить сайт по id с страницами, шаблонами, блоками' })
   @ApiOkResponse({ description: 'Сайт по id с всеми вложенными данными' })
   async findOne(@Param('id') id: string) {
