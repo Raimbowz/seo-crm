@@ -23,6 +23,9 @@ export class SitesController {
     return await this.sitesService.create(dto);
   }
 
+
+  
+
   @Get()
   @ApiOperation({ summary: 'Получить все сайты (admin: все, user: только доступные)' })
   @ApiOkResponse({ description: 'Список сайтов' })
