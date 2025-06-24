@@ -20,6 +20,12 @@ export class CreateSiteDto {
   @Matches(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
   domain: string;
 
+
+  @ApiProperty({ example: true, description: 'Robots meta no index', required: false })
+  @IsOptional()
+  @IsBoolean()
+  robotsMetaNoIndex?: boolean;
+
   @ApiProperty({ example: 'Описание сайта', description: 'Site description', required: false })
   @IsOptional()
   @IsString()

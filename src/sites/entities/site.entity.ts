@@ -76,7 +76,10 @@ export class Site {
   @ApiProperty({ example: '2023-05-15T10:30:00Z', description: 'Date when the site was last updated' })
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
-  
+
+  @ApiProperty({ example: true, description: 'Robots meta no index' })
+  @Column({ default: false })
+  robotsMetaNoIndex: boolean;
 
   @OneToMany(() => Page, (page) => page.site)
   pages: Page[];
