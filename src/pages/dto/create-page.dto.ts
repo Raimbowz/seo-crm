@@ -76,6 +76,11 @@ export class CreatePageDto {
   @IsOptional()
   isActive?: boolean;
 
+  @ApiProperty({ example: true, description: 'Whether the page is main', required: false })
+  @IsBoolean()
+  @IsOptional()
+  isMain?: boolean;
+
   @ApiProperty({ example: 1, description: 'ID родительской страницы', required: false })
   @IsOptional()
   @IsInt()
