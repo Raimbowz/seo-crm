@@ -101,8 +101,12 @@ export class PagesService {
   }
 
   async findBySiteId(siteId: number): Promise<Page[]> {
+    // Получаем страницы конкретного сайта + глобальные страницы
     return this.pageRepository.find({
-      where: { site: { id: siteId } },
+      where: [
+        { site: { id: siteId } }, // Страницы этого сайта
+        { isGlobal: true }         // Глобальные страницы
+      ],
       relations: ['template'],
     });
   }
