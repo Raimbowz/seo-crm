@@ -40,6 +40,10 @@ export class Site {
   @Column({ type: 'text', nullable: true })
   theme: string;
 
+  @ApiProperty({ example: 'Inter', description: 'Google Font family name', required: false })
+  @Column({ type: 'text', nullable: true })
+  googleFont: string;
+
   @ApiProperty({ example: 'User agent: *', description: 'robots.txt content', required: false })
   @Column({ type: 'text', nullable: true })
   robotsTxt: string;

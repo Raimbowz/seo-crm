@@ -41,6 +41,12 @@ export class CreateSiteDto {
   @IsString()
   theme?: string;
 
+  @ApiProperty({ example: 'Inter', description: 'Google Font family name', required: false })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  googleFont?: string;
+
   @ApiProperty({ example: 'User agent: *', description: 'robots.txt content', required: false })
   @IsOptional()
   @IsString()
