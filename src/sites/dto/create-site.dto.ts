@@ -82,4 +82,24 @@ export class CreateSiteDto {
   @IsOptional()
   @IsString()
   type?: string;
+
+  @ApiProperty({ example: true, description: 'Whether localizations are enabled', required: false })
+  @IsOptional()
+  @IsBoolean()
+  localizationsEnabled?: boolean;
+
+  @ApiProperty({ example: 'ru-RU', description: 'Default locale when localizations disabled', required: false })
+  @IsOptional()
+  @IsString()
+  defaultLocale?: string;
+
+  @ApiProperty({ example: 'Global title', description: 'Global meta title when localizations disabled', required: false })
+  @IsOptional()
+  @IsString()
+  globalMetaTitle?: string;
+
+  @ApiProperty({ example: 'Global description', description: 'Global meta description when localizations disabled', required: false })
+  @IsOptional()
+  @IsString()
+  globalMetaDescription?: string;
 } 

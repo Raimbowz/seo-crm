@@ -81,6 +81,22 @@ export class Site {
   @Column({ default: false })
   robotsMetaNoIndex: boolean;
 
+  @ApiProperty({ example: true, description: 'Whether localizations are enabled for this site' })
+  @Column({ default: true })
+  localizationsEnabled: boolean;
+
+  @ApiProperty({ example: 'ru-RU', description: 'Default locale when localizations are disabled' })
+  @Column({ type: 'text', nullable: true, default: 'ru-RU' })
+  defaultLocale: string;
+
+  @ApiProperty({ example: 'Global title', description: 'Global meta title when localizations disabled' })
+  @Column({ type: 'text', nullable: true })
+  globalMetaTitle: string;
+
+  @ApiProperty({ example: 'Global description', description: 'Global meta description when localizations disabled' })
+  @Column({ type: 'text', nullable: true })
+  globalMetaDescription: string;
+
   @OneToMany(() => Page, (page) => page.site)
   pages: Page[];
 
