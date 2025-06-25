@@ -105,7 +105,7 @@ export class LeadsService {
         userAgent: req.headers['user-agent'] || '',
         locale: formData.locale || 'en-US',
         referer: req.headers.referer || '',
-        siteId: siteId,
+        siteId: siteId || undefined,
         domain: formData.domain || '',
         formData: {
           ...formData,
