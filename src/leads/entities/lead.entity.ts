@@ -105,6 +105,12 @@ export class Lead {
   @Column({ type: 'json', nullable: true })
   formData: any;
 
+  @Column({ nullable: true })
+  siteId: number;
+
+  @Column({ nullable: true })
+  domain: string;
+
   @ManyToOne(() => Page)
   @JoinColumn({ name: 'pageId' })
   page: Page;

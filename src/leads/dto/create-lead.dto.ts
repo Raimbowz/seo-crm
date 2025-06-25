@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEmail, IsPhoneNumber, IsOptional, IsEnum, IsIP } from 'class-validator';
+import { IsString, IsEmail, IsPhoneNumber, IsOptional, IsEnum, IsIP, IsNumber } from 'class-validator';
 import { LeadStatus } from '../entities/lead.entity';
 
 export class CreateLeadDto {
@@ -68,6 +68,16 @@ export class CreateLeadDto {
   @IsString()
   @IsOptional()
   referer?: string;
+
+  @ApiProperty({ description: 'Site ID', required: false })
+  @IsNumber()
+  @IsOptional()
+  siteId?: number;
+
+  @ApiProperty({ description: 'Domain name', required: false })
+  @IsString()
+  @IsOptional()
+  domain?: string;
 
   @ApiProperty({ description: 'Additional form data', required: false })
   @IsOptional()

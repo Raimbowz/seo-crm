@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
 import { Lead, LeadStatus } from './entities/lead.entity';
+import { Site } from '../sites/entities/site.entity';
 import { Request } from 'express';
 import axios from 'axios';
 
@@ -12,6 +13,8 @@ export class LeadsService {
   constructor(
     @InjectRepository(Lead)
     private readonly leadRepository: Repository<Lead>,
+    @InjectRepository(Site)
+    private readonly siteRepository: Repository<Site>,
   ) {}
 
   async create(createLeadDto: CreateLeadDto): Promise<Lead> {
@@ -65,6 +68,24 @@ export class LeadsService {
         console.warn('Failed to get IP geolocation:', error.message);
       }
 
+      // Determine siteId from domain
+      let siteId: number | null = null;
+      if (formData.domain) {
+        try {
+          const site = await this.siteRepository.findOne({ 
+            where: { domain: formData.domain } 
+          });
+          if (site) {
+            siteId = site.id;
+            console.log(`Found site ID ${siteId} for domain: ${formData.domain}`);
+          } else {
+            console.warn(`No site found for domain: ${formData.domain}`);
+          }
+        } catch (error) {
+          console.error('Error finding site by domain:', error.message);
+        }
+      }
+
       // Validate required fields
       if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
         throw new BadRequestException('Missing required fields: firstName, lastName, email, phone');
@@ -84,6 +105,8 @@ export class LeadsService {
         userAgent: req.headers['user-agent'] || '',
         locale: formData.locale || 'en-US',
         referer: req.headers.referer || '',
+        siteId: siteId,
+        domain: formData.domain || '',
         formData: {
           ...formData,
           submittedAt: new Date().toISOString(),
