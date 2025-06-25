@@ -32,6 +32,11 @@ export class CreateBlockDto {
   @IsOptional()
   showButtons?: boolean;
 
+  @ApiProperty({ description: 'Whether to show contacts in the block', required: false })
+  @IsBoolean()
+  @IsOptional()
+  showContacts?: boolean;
+
   @ApiProperty({ description: 'The site id of the block', required: false })
   @IsNumber()
   @IsOptional()
