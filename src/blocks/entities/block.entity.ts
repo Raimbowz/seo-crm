@@ -49,6 +49,10 @@ export class Block {
   @Column({ default: true })
   showButtons: boolean;
 
+  @ApiProperty({ description: 'Whether to show contacts in the block' })
+  @Column({ default: true })
+  showContacts: boolean;
+
   @ApiProperty({ description: 'Creation timestamp' })
   @CreateDateColumn()
   createdAt: Date;
