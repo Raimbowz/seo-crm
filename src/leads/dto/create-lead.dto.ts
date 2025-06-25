@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEmail, IsPhoneNumber, IsOptional, IsEnum } from 'class-validator';
+import { IsString, IsEmail, IsPhoneNumber, IsOptional, IsEnum, IsIP } from 'class-validator';
 import { LeadStatus } from '../entities/lead.entity';
 
 export class CreateLeadDto {
@@ -43,4 +43,33 @@ export class CreateLeadDto {
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @ApiProperty({ description: 'IP address', required: false })
+  @IsIP()
+  @IsOptional()
+  ip?: string;
+
+  @ApiProperty({ description: 'Country code', required: false })
+  @IsString()
+  @IsOptional()
+  countryCode?: string;
+
+  @ApiProperty({ description: 'User agent', required: false })
+  @IsString()
+  @IsOptional()
+  userAgent?: string;
+
+  @ApiProperty({ description: 'Locale', required: false })
+  @IsString()
+  @IsOptional()
+  locale?: string;
+
+  @ApiProperty({ description: 'Referer URL', required: false })
+  @IsString()
+  @IsOptional()
+  referer?: string;
+
+  @ApiProperty({ description: 'Additional form data', required: false })
+  @IsOptional()
+  formData?: any;
 }

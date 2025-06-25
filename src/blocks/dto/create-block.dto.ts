@@ -27,6 +27,11 @@ export class CreateBlockDto {
   @IsOptional()
   isGlobal?: boolean;
 
+  @ApiProperty({ description: 'Whether to show buttons in the block', required: false })
+  @IsBoolean()
+  @IsOptional()
+  showButtons?: boolean;
+
   @ApiProperty({ description: 'The site id of the block', required: false })
   @IsNumber()
   @IsOptional()

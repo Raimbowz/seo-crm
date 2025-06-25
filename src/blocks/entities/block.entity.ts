@@ -45,6 +45,10 @@ export class Block {
   @Column({ default: false })
   isGlobal: boolean;
 
+  @ApiProperty({ description: 'Whether to show buttons in the block' })
+  @Column({ default: true })
+  showButtons: boolean;
+
   @ApiProperty({ description: 'Creation timestamp' })
   @CreateDateColumn()
   createdAt: Date;

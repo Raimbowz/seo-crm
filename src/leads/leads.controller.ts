@@ -7,8 +7,12 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Request } from 'express';
 import { LeadsService } from './leads.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
@@ -16,11 +20,11 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('leads')
 @Controller('leads')
-@UseGuards(JwtAuthGuard)
 export class LeadsController {
   constructor(private readonly leadsService: LeadsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Create a new lead' })
   @ApiResponse({
     status: 201,
@@ -31,7 +35,20 @@ export class LeadsController {
     return this.leadsService.create(createLeadDto);
   }
 
+  @Post('submit')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Submit a form lead (public endpoint)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lead has been successfully submitted.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  async submitForm(@Body() formData: any, @Req() req: Request) {
+    return this.leadsService.submitForm(formData, req);
+  }
+
   @Get()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get all leads' })
   @ApiResponse({ status: 200, description: 'Return all leads.' })
   findAll() {
@@ -39,6 +56,7 @@ export class LeadsController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get a lead by id' })
   @ApiResponse({ status: 200, description: 'Return the lead.' })
   @ApiResponse({ status: 404, description: 'Lead not found.' })
@@ -47,6 +65,7 @@ export class LeadsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update a lead' })
   @ApiResponse({
     status: 200,
@@ -58,6 +77,7 @@ export class LeadsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Delete a lead' })
   @ApiResponse({
     status: 200,

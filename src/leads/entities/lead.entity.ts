@@ -87,6 +87,24 @@ export class Lead {
   @Column({ type: 'text', nullable: true })
   notes: string;
 
+  @Column({ nullable: true })
+  ip: string;
+
+  @Column({ nullable: true })
+  countryCode: string;
+
+  @Column({ nullable: true })
+  userAgent: string;
+
+  @Column({ nullable: true })
+  locale: string;
+
+  @Column({ nullable: true })
+  referer: string;
+
+  @Column({ type: 'json', nullable: true })
+  formData: any;
+
   @ManyToOne(() => Page)
   @JoinColumn({ name: 'pageId' })
   page: Page;
