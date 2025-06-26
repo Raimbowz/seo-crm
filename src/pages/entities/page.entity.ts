@@ -40,7 +40,7 @@ export class Page {
   metaKeywords: string;
 
   @ApiProperty({ example: 1, description: 'City ID' })
-  @Column()
+  @Column({ nullable: true })
   cityId: number;
 
   @ApiProperty({ example: 1, description: 'Site ID' })
