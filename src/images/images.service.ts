@@ -26,19 +26,33 @@ export class ImagesService {
   async findAll(siteId?: number, includeGlobal = true): Promise<Image[]> {
     const queryBuilder = this.imageRepository.createQueryBuilder('image');
     
+    console.log('ImagesService.findAll called with:', { siteId, includeGlobal });
+    
     if (siteId !== undefined) {
       if (includeGlobal) {
         // Показываем изображения конкретного сайта + глобальные
         queryBuilder.where('(image.siteId = :siteId OR image.isGlobal = true)', { siteId });
+        console.log('Query: siteId specific + global');
       } else {
         // Показываем только изображения конкретного сайта
         queryBuilder.where('image.siteId = :siteId', { siteId });
+        console.log('Query: siteId specific only');
       }
-    } else if (!includeGlobal) {
-      // Показываем только не глобальные изображения
-      queryBuilder.where('image.isGlobal = false');
+    } else {
+      if (includeGlobal) {
+        // Показываем все изображения
+        // Никаких условий не добавляем
+        console.log('Query: all images');
+      } else {
+        // Показываем только глобальные изображения (когда siteId не указан и includeGlobal = false)
+        queryBuilder.where('image.isGlobal = true');
+        console.log('Query: global only');
+      }
     }
-    // Если siteId не указан и includeGlobal = true, показываем все изображения
+    
+    const sql = queryBuilder.getSql();
+    const params = queryBuilder.getParameters();
+    console.log('Generated SQL:', sql, 'Params:', params);
     
     return queryBuilder.orderBy('image.createdAt', 'DESC').getMany();
   }

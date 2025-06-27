@@ -29,9 +29,14 @@ export class ImagesController {
   @ApiOperation({ summary: 'Get all images' })
   @ApiResponse({ status: 200, type: [Image], description: 'Array of images' })
   async findAll(@Query('siteId') siteId?: string, @Query('includeGlobal') includeGlobal?: string): Promise<any[]> {
+    const includeGlobalFlag = includeGlobal !== undefined ? includeGlobal === 'true' : true;
+    const siteIdNumber = siteId ? Number(siteId) : undefined;
+    
+    console.log('Images query params:', { siteId: siteIdNumber, includeGlobal: includeGlobalFlag });
+    
     const images = await this.imagesService.findAll(
-      siteId ? Number(siteId) : undefined,
-      includeGlobal === 'true'
+      siteIdNumber,
+      includeGlobalFlag
     );
     // Добавляем полные URL для каждого изображения
     return images.map(image => ({
