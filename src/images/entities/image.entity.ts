@@ -17,6 +17,12 @@ export class Image {
   @Column({ nullable: true })
   userId: number;
 
+  @Column({ nullable: true })
+  siteId: number;
+
+  @Column({ default: false })
+  isGlobal: boolean;
+
   @Column({ default: false })
   isPublic: boolean;
 

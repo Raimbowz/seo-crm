@@ -20,6 +20,16 @@ export class CreateImageDto {
   @IsNumber()
   userId?: number;
 
+  @ApiProperty({ example: 1, description: 'ID сайта', required: false })
+  @IsOptional()
+  @IsNumber()
+  siteId?: number;
+
+  @ApiProperty({ default: false, example: true, description: 'Глобальное изображение (доступно для всех сайтов)' })
+  @IsOptional()
+  @IsBoolean()
+  isGlobal?: boolean;
+
   @ApiProperty({ default: false, example: true, description: 'Публично ли изображение' })
   @IsOptional()
   @IsBoolean()

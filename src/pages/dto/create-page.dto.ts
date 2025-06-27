@@ -54,7 +54,6 @@ export class CreatePageDto {
   templateId: string;
 
   @ApiProperty({ example: 1, description: 'Site ID' })
-  @IsInt()
   @IsNotEmpty()
   siteId: number;
 

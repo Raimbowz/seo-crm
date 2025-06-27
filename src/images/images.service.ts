@@ -23,8 +23,24 @@ export class ImagesService {
     return this.imageRepository.save(image);
   }
 
-  async findAll(): Promise<Image[]> {
-    return this.imageRepository.find();
+  async findAll(siteId?: number, includeGlobal = true): Promise<Image[]> {
+    const queryBuilder = this.imageRepository.createQueryBuilder('image');
+    
+    if (siteId !== undefined) {
+      if (includeGlobal) {
+        // Показываем изображения конкретного сайта + глобальные
+        queryBuilder.where('(image.siteId = :siteId OR image.isGlobal = true)', { siteId });
+      } else {
+        // Показываем только изображения конкретного сайта
+        queryBuilder.where('image.siteId = :siteId', { siteId });
+      }
+    } else if (!includeGlobal) {
+      // Показываем только не глобальные изображения
+      queryBuilder.where('image.isGlobal = false');
+    }
+    // Если siteId не указан и includeGlobal = true, показываем все изображения
+    
+    return queryBuilder.orderBy('image.createdAt', 'DESC').getMany();
   }
 
   async findOne(id: number): Promise<Image> {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, Query } from '@nestjs/common';
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
@@ -28,8 +28,11 @@ export class ImagesController {
   @Get()
   @ApiOperation({ summary: 'Get all images' })
   @ApiResponse({ status: 200, type: [Image], description: 'Array of images' })
-  async findAll(): Promise<any[]> {
-    const images = await this.imagesService.findAll();
+  async findAll(@Query('siteId') siteId?: string, @Query('includeGlobal') includeGlobal?: string): Promise<any[]> {
+    const images = await this.imagesService.findAll(
+      siteId ? Number(siteId) : undefined,
+      includeGlobal === 'true'
+    );
     // Добавляем полные URL для каждого изображения
     return images.map(image => ({
       ...image,
