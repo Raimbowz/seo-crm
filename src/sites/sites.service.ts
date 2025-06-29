@@ -10,6 +10,7 @@ import { TemplatesService } from '../templates/templates.service';
 import { BlocksService } from '../blocks/blocks.service';
 import { VariablesService } from '../variables/variables.service';
 import { CitiesService } from '../cities/cities.service';
+import { VariableReplacementService } from '../common/services/variable-replacement.service';
 
 @Injectable()
 export class SitesService {
@@ -23,6 +24,7 @@ export class SitesService {
     private readonly blocksService: BlocksService,
     private readonly variablesService: VariablesService,
     private readonly citiesService: CitiesService,
+    private readonly variableReplacementService: VariableReplacementService,
   ) {}
 
   async create(dto: CreateSiteDto) {
@@ -127,10 +129,14 @@ export class SitesService {
       // Получаем город для страницы (или Москву)
       const city = await this.getCityOrDefault(page.cityId);
       // Заменяем переменные во всех строках страницы
-      const pageWithVars = parseAllStrings(page, variables, city, site);
+      let pageWithVars = parseAllStrings(page, variables, city, site);
+      // Дополнительно обрабатываем системные переменные через новый сервис
+      pageWithVars = this.variableReplacementService.replaceVariables(pageWithVars);
       // Заменяем переменные в шаблоне (template.content)
       if (pageWithVars.template && pageWithVars.template.content) {
         pageWithVars.template.content = replaceVariablesInContent(pageWithVars.template.content, variables, city, site);
+        // Дополнительно обрабатываем системные переменные через новый сервис
+        pageWithVars.template.content = this.variableReplacementService.replaceVariables(pageWithVars.template.content);
       }
       // Заменяем переменные в блоках (blockContent)
       if (pageWithVars.template && Array.isArray(pageWithVars.template.content)) {
@@ -141,6 +147,8 @@ export class SitesService {
                 for (const block of col.blocks) {
                   if (block.blockContent && block.blockContent.content) {
                     block.blockContent.content = replaceVariablesInContent(block.blockContent.content, variables, city, site);
+                    // Дополнительно обрабатываем системные переменные через новый сервис
+                    block.blockContent.content = this.variableReplacementService.replaceVariables(block.blockContent.content);
                   }
                 }
               }
@@ -152,7 +160,9 @@ export class SitesService {
     }
 
     // Парсим все строки у сайта
-    const siteWithVars = parseAllStrings(site, variables, null, site);
+    let siteWithVars = parseAllStrings(site, variables, null, site);
+    // Дополнительно обрабатываем системные переменные через новый сервис
+    siteWithVars = this.variableReplacementService.replaceVariables(siteWithVars);
     siteWithVars.pages = pagesWithTemplates;
     return siteWithVars;
   }

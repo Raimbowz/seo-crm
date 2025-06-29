@@ -13,6 +13,7 @@ import { BlocksModule } from '../blocks/blocks.module';
 import { AuthModule } from '../auth/auth.module';
 import { VariablesModule } from '../variables/variables.module';
 import { CitiesModule } from '../cities/cities.module';
+import { VariableReplacementService } from '../common/services/variable-replacement.service';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { CitiesModule } from '../cities/cities.module';
     VariablesModule,
     CitiesModule,
   ],
-  providers: [SitesService],
+  providers: [SitesService, VariableReplacementService],
   controllers: [SitesController],
   exports: [SitesService],
 })
