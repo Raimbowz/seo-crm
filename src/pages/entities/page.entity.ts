@@ -67,9 +67,6 @@ export class Page {
   @Column({ default: false })
   isMain: boolean;
 
-  @ApiProperty({ example: false, description: 'Whether the page is a thank you page' })
-  @Column({ default: false })
-  isThankYouPage: boolean;
 
   @ApiProperty({ example: '{}', description: 'Page content as JSON' })
   @Column({ type: 'text', nullable: true })
