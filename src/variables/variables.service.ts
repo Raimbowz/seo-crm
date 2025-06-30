@@ -23,6 +23,13 @@ export class VariablesService {
     return this.variableRepository.find();
   }
 
+  async findBySiteId(siteId: number): Promise<Variable[]> {
+    return this.variableRepository.find({ 
+      where: { siteId },
+      order: { createdAt: 'ASC' }
+    });
+  }
+
   async getVariableById(id: number): Promise<Variable> {
     const variable = await this.variableRepository.findOne({ where: { id } });
     if (!variable) throw new NotFoundException('Variable not found');

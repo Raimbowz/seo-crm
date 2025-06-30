@@ -5,28 +5,30 @@ export class VariableReplacementService {
   private readonly logger = new Logger(VariableReplacementService.name);
 
   /**
-   * Replace system variables in any content (string or object)
+   * Replace system and custom variables in any content (string or object)
    * @param content - Content to process (string, object, or array)
    * @param locale - Locale for date formatting (optional)
+   * @param customVariables - Custom variables map (optional)
    * @returns Processed content with replaced variables
    */
-  replaceVariables(content: any, locale: string = 'ru-RU'): any {
+  async replaceVariables(content: any, locale: string = 'ru-RU', customVariables?: Record<string, string>): Promise<any> {
     if (content === null || content === undefined) {
       return content;
     }
 
     if (typeof content === 'string') {
-      return this.replaceStringVariables(content, locale);
+      return await this.replaceStringVariables(content, locale, customVariables);
     }
 
     if (Array.isArray(content)) {
-      return content.map(item => this.replaceVariables(item, locale));
+      const promises = content.map(item => this.replaceVariables(item, locale, customVariables));
+      return await Promise.all(promises);
     }
 
     if (typeof content === 'object') {
       const result = {};
       for (const [key, value] of Object.entries(content)) {
-        result[key] = this.replaceVariables(value, locale);
+        result[key] = await this.replaceVariables(value, locale, customVariables);
       }
       return result;
     }
@@ -35,9 +37,64 @@ export class VariableReplacementService {
   }
 
   /**
-   * Replace variables in a string
+   * Synchronous version for backwards compatibility
    */
-  private replaceStringVariables(text: string, locale: string): string {
+  replaceVariablesSync(content: any, locale: string = 'ru-RU'): any {
+    if (content === null || content === undefined) {
+      return content;
+    }
+
+    if (typeof content === 'string') {
+      return this.replaceStringVariablesSync(content, locale);
+    }
+
+    if (Array.isArray(content)) {
+      return content.map(item => this.replaceVariablesSync(item, locale));
+    }
+
+    if (typeof content === 'object') {
+      const result = {};
+      for (const [key, value] of Object.entries(content)) {
+        result[key] = this.replaceVariablesSync(value, locale);
+      }
+      return result;
+    }
+
+    return content;
+  }
+
+  /**
+   * Replace variables in a string (async version with custom variables)
+   */
+  private async replaceStringVariables(text: string, locale: string, customVariables?: Record<string, string>): Promise<string> {
+    if (typeof text !== 'string') {
+      return text;
+    }
+
+    try {
+      const now = new Date();
+      const systemVariables = this.getSystemVariables(now, locale);
+
+      // Combine system and custom variables (custom variables take precedence)
+      const allVariables = { ...systemVariables, ...customVariables };
+
+      let result = text;
+      for (const [variable, value] of Object.entries(allVariables)) {
+        const pattern = new RegExp(`\\[\\*${variable}\\*\\]`, 'gi');
+        result = result.replace(pattern, value);
+      }
+
+      return result;
+    } catch (error) {
+      this.logger.warn(`Error replacing variables in text: ${text}`, error);
+      return text;
+    }
+  }
+
+  /**
+   * Replace variables in a string (sync version - only system variables)
+   */
+  private replaceStringVariablesSync(text: string, locale: string): string {
     if (typeof text !== 'string') {
       return text;
     }
@@ -186,17 +243,32 @@ export class VariableReplacementService {
   }
 
   /**
-   * Replace variables in JSON string
+   * Replace variables in JSON string (async version)
    */
-  replaceVariablesInJson(jsonString: string, locale: string = 'ru-RU'): string {
+  async replaceVariablesInJson(jsonString: string, locale: string = 'ru-RU', customVariables?: Record<string, string>): Promise<string> {
     try {
       const parsed = JSON.parse(jsonString);
-      const processed = this.replaceVariables(parsed, locale);
+      const processed = await this.replaceVariables(parsed, locale, customVariables);
       return JSON.stringify(processed);
     } catch (error) {
       this.logger.warn(`Error processing JSON string: ${jsonString}`, error);
       // If JSON parsing fails, treat as regular string
-      return this.replaceStringVariables(jsonString, locale);
+      return await this.replaceStringVariables(jsonString, locale, customVariables);
+    }
+  }
+
+  /**
+   * Replace variables in JSON string (sync version - only system variables)
+   */
+  replaceVariablesInJsonSync(jsonString: string, locale: string = 'ru-RU'): string {
+    try {
+      const parsed = JSON.parse(jsonString);
+      const processed = this.replaceVariablesSync(parsed, locale);
+      return JSON.stringify(processed);
+    } catch (error) {
+      this.logger.warn(`Error processing JSON string: ${jsonString}`, error);
+      // If JSON parsing fails, treat as regular string
+      return this.replaceStringVariablesSync(jsonString, locale);
     }
   }
 }

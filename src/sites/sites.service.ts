@@ -64,11 +64,19 @@ export class SitesService {
     // Получаем все страницы этого сайта
     const pages = await this.pagesService.findBySiteId(site.id);
 
-    // Получаем все активные переменные
-    const variablesArr = await this.variablesService.getAllVariables();
+    // Получаем все активные переменные для данного сайта
+    const variablesArr = await this.variablesService.findBySiteId(site.id);
     const variables: Record<string, string> = {};
     for (const v of variablesArr) {
       if (v.isActive) variables[v.key] = v.value;
+    }
+
+    // Также получаем глобальные переменные (с siteId = null)
+    const globalVariablesArr = await this.variablesService.getAllVariables();
+    for (const v of globalVariablesArr) {
+      if (v.isActive && !v.siteId && !variables[v.key]) {
+        variables[v.key] = v.value;
+      }
     }
 
     // Собираем все blockIds по всем страницам/шаблонам
@@ -130,13 +138,13 @@ export class SitesService {
       const city = await this.getCityOrDefault(page.cityId);
       // Заменяем переменные во всех строках страницы
       let pageWithVars = parseAllStrings(page, variables, city, site);
-      // Дополнительно обрабатываем системные переменные через новый сервис
-      pageWithVars = this.variableReplacementService.replaceVariables(pageWithVars);
+      // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
+      pageWithVars = await this.variableReplacementService.replaceVariables(pageWithVars, 'ru-RU', variables);
       // Заменяем переменные в шаблоне (template.content)
       if (pageWithVars.template && pageWithVars.template.content) {
         pageWithVars.template.content = replaceVariablesInContent(pageWithVars.template.content, variables, city, site);
-        // Дополнительно обрабатываем системные переменные через новый сервис
-        pageWithVars.template.content = this.variableReplacementService.replaceVariables(pageWithVars.template.content);
+        // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
+        pageWithVars.template.content = await this.variableReplacementService.replaceVariables(pageWithVars.template.content, 'ru-RU', variables);
       }
       // Заменяем переменные в блоках (blockContent)
       if (pageWithVars.template && Array.isArray(pageWithVars.template.content)) {
@@ -147,8 +155,8 @@ export class SitesService {
                 for (const block of col.blocks) {
                   if (block.blockContent && block.blockContent.content) {
                     block.blockContent.content = replaceVariablesInContent(block.blockContent.content, variables, city, site);
-                    // Дополнительно обрабатываем системные переменные через новый сервис
-                    block.blockContent.content = this.variableReplacementService.replaceVariables(block.blockContent.content);
+                    // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
+                    block.blockContent.content = await this.variableReplacementService.replaceVariables(block.blockContent.content, 'ru-RU', variables);
                   }
                 }
               }
@@ -161,8 +169,8 @@ export class SitesService {
 
     // Парсим все строки у сайта
     let siteWithVars = parseAllStrings(site, variables, null, site);
-    // Дополнительно обрабатываем системные переменные через новый сервис
-    siteWithVars = this.variableReplacementService.replaceVariables(siteWithVars);
+    // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
+    siteWithVars = await this.variableReplacementService.replaceVariables(siteWithVars, 'ru-RU', variables);
     siteWithVars.pages = pagesWithTemplates;
     return siteWithVars;
   }
