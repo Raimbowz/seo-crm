@@ -130,7 +130,6 @@ export class LeadsService {
         success: true,
         message: 'Form submitted successfully',
         leadId: lead.id,
-        redirectUrl: redirectUrl
       };
 
     } catch (error) {
