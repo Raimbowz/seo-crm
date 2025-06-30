@@ -7,6 +7,7 @@ import { Lead, LeadStatus } from './entities/lead.entity';
 import { Site } from '../sites/entities/site.entity';
 import { Request } from 'express';
 import axios from 'axios';
+import { PagesService } from '../pages/pages.service';
 
 @Injectable()
 export class LeadsService {
@@ -15,6 +16,7 @@ export class LeadsService {
     private readonly leadRepository: Repository<Lead>,
     @InjectRepository(Site)
     private readonly siteRepository: Repository<Site>,
+    private readonly pagesService: PagesService,
   ) {}
 
   async create(createLeadDto: CreateLeadDto): Promise<Lead> {
@@ -52,7 +54,7 @@ export class LeadsService {
     await this.leadRepository.remove(lead);
   }
 
-  async submitForm(formData: any, req: Request): Promise<{ success: boolean; message: string; leadId?: string }> {
+  async submitForm(formData: any, req: Request): Promise<{ success: boolean; message: string; leadId?: string; redirectUrl?: string }> {
     try {
       // Extract IP address from request
       const ip = this.extractClientIP(req);
@@ -122,10 +124,24 @@ export class LeadsService {
       // Create the lead
       const lead = await this.create(createLeadDto);
 
+      // Find thank you page for redirect
+      let redirectUrl: string | undefined;
+      if (siteId) {
+        try {
+          const thankYouPage = await this.pagesService.findThankYouPageBySiteId(siteId);
+          if (thankYouPage) {
+            redirectUrl = `/${thankYouPage.slug}`;
+          }
+        } catch (error) {
+          console.warn('Error finding thank you page:', error.message);
+        }
+      }
+
       return {
         success: true,
         message: 'Form submitted successfully',
-        leadId: lead.id
+        leadId: lead.id,
+        redirectUrl: redirectUrl
       };
 
     } catch (error) {

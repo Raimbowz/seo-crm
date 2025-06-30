@@ -75,6 +75,11 @@ export class CreatePageDto {
   @IsOptional()
   isActive?: boolean;
 
+  @ApiProperty({ example: '{}', description: 'Page content as JSON', required: false })
+  @IsString()
+  @IsOptional()
+  content?: string;
+
   @ApiProperty({ example: true, description: 'Whether the page is main', required: false })
   @IsBoolean()
   @IsOptional()
@@ -89,4 +94,14 @@ export class CreatePageDto {
   @IsBoolean()
   @IsOptional()
   isGlobal?: boolean;
+
+  @ApiProperty({ example: false, description: 'Whether the page is a thank you page', required: false })
+  @IsBoolean()
+  @IsOptional()
+  isThankYouPage?: boolean;
+
+  @ApiProperty({ example: '{}', description: 'Page content as JSON', required: false })
+  @IsString()
+  @IsOptional()
+  content?: string;
 }

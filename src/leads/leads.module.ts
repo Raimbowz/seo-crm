@@ -6,12 +6,14 @@ import { Lead } from './entities/lead.entity';
 import { Site } from '../sites/entities/site.entity';
 import { AuthModule } from '../auth/auth.module';
 import { ConfigModule } from '../config/config.module';
+import { PagesModule } from '../pages/pages.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Lead, Site]),
     AuthModule,
     ConfigModule,
+    PagesModule,
   ],
   controllers: [LeadsController],
   providers: [LeadsService],

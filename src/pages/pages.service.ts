@@ -110,4 +110,18 @@ export class PagesService {
       relations: ['template'],
     });
   }
+
+  async findThankYouPageBySiteId(siteId: number): Promise<Page | null> {
+    return this.pageRepository.findOne({
+      where: [
+        { siteId: siteId, isThankYouPage: true, isActive: true },
+        { isGlobal: true, isThankYouPage: true, isActive: true }
+      ],
+      relations: ['template'],
+      order: {
+        isGlobal: 'ASC', // Prefer site-specific over global
+        id: 'ASC'
+      }
+    });
+  }
 }

@@ -8,11 +8,12 @@ import {
   Delete,
   UseGuards,
   Req,
+  Res,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { LeadsService } from './leads.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
@@ -36,15 +37,26 @@ export class LeadsController {
   }
 
   @Post('submit')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Submit a form lead (public endpoint)' })
   @ApiResponse({
     status: 200,
     description: 'Lead has been successfully submitted.',
   })
+  @ApiResponse({
+    status: 302,
+    description: 'Lead submitted successfully, redirecting to thank you page.',
+  })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  async submitForm(@Body() formData: any, @Req() req: Request) {
-    return this.leadsService.submitForm(formData, req);
+  async submitForm(@Body() formData: any, @Req() req: Request, @Res() res: Response) {
+    const result = await this.leadsService.submitForm(formData, req);
+    
+    if (result.redirectUrl) {
+      // If we have a redirect URL, perform a redirect
+      return res.redirect(302, result.redirectUrl);
+    } else {
+      // Otherwise return JSON response
+      return res.status(HttpStatus.OK).json(result);
+    }
   }
 
   @Get()
