@@ -124,18 +124,7 @@ export class LeadsService {
       // Create the lead
       const lead = await this.create(createLeadDto);
 
-      // Find thank you page for redirect
-      let redirectUrl: string | undefined;
-      if (siteId) {
-        try {
-          const thankYouPage = await this.pagesService.findThankYouPageBySiteId(siteId);
-          if (thankYouPage) {
-            redirectUrl = `/${thankYouPage.slug}`;
-          }
-        } catch (error) {
-          console.warn('Error finding thank you page:', error.message);
-        }
-      }
+    
 
       return {
         success: true,
