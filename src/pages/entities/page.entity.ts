@@ -67,10 +67,10 @@ export class Page {
   @Column({ default: false })
   isMain: boolean;
 
+  @ApiProperty({ example: false, description: 'Whether the page is a thank you page' })
+  @Column({ default: false })
+  isThankYouPage: boolean;
 
-  @ApiProperty({ example: '{}', description: 'Page content as JSON' })
-  @Column({ type: 'text', nullable: true })
-  content: string;
 
   @ApiProperty({
     example: '2023-05-15T10:30:00Z',
@@ -78,6 +78,9 @@ export class Page {
   })
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+
+
+  
 
   @ApiProperty({
     example: '2023-05-15T10:30:00Z',

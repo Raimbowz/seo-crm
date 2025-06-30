@@ -92,9 +92,8 @@ export class CreatePageDto {
   @IsOptional()
   isGlobal?: boolean;
 
-
-  @ApiProperty({ example: '{}', description: 'Page content as JSON', required: false })
-  @IsString()
+  @ApiProperty({ example: false, description: 'Whether the page is a thank you page', required: false })
+  @IsBoolean()
   @IsOptional()
-  content?: string;
+  isThankYouPage?: boolean;
 }
