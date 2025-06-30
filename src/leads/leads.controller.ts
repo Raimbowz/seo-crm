@@ -54,8 +54,8 @@ export class LeadsController {
       // If we have a redirect URL, perform a redirect
       return res.redirect(302, result.redirectUrl);
     } else {
-      // Otherwise return JSON response
-      return res.status(HttpStatus.OK).json(result);
+      // Otherwise return JSON response using Fastify syntax
+      return res.status(HttpStatus.OK).send(result);
     }
   }
 
