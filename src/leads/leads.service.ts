@@ -79,12 +79,9 @@ export class LeadsService {
           });
           if (site) {
             siteId = site.id;
-            console.log(`Found site ID ${siteId} for domain: ${formData.domain}`);
           } else {
-            console.warn(`No site found for domain: ${formData.domain}`);
           }
         } catch (error) {
-          console.error('Error finding site by domain:', error.message);
         }
       }
 
@@ -137,7 +134,6 @@ export class LeadsService {
         throw error;
       }
       
-      console.error('Error submitting form:', error);
       throw new BadRequestException('Failed to submit form');
     }
   }
