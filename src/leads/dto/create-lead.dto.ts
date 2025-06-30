@@ -16,7 +16,7 @@ export class CreateLeadDto {
   email: string;
 
   @ApiProperty({ description: 'Phone number of the lead' })
-  @IsPhoneNumber()
+  @IsString()
   phone: string;
 
   @ApiProperty({ description: 'Company name', required: false })

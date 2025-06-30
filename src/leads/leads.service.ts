@@ -86,8 +86,8 @@ export class LeadsService {
       }
 
       // Validate required fields
-      if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
-        throw new BadRequestException('Missing required fields: firstName, lastName, email, phone');
+      if (!formData.firstName || !formData.email || !formData.phone) {
+        throw new BadRequestException('Missing required fields: firstName, email, phone');
       }
 
       // Create lead DTO

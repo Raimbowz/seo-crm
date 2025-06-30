@@ -50,13 +50,8 @@ export class LeadsController {
   async submitForm(@Body() formData: any, @Req() req: Request, @Res() res: Response) {
     const result = await this.leadsService.submitForm(formData, req);
     
-    if (result.redirectUrl) {
-      // If we have a redirect URL, perform a redirect
-      return res.redirect(302, result.redirectUrl);
-    } else {
-      // Otherwise return JSON response using Fastify syntax
-      return res.status(HttpStatus.OK).send(result);
-    }
+    // Always return JSON response - let frontend handle redirects
+    return res.status(HttpStatus.OK).send(result);
   }
 
   @Get()
