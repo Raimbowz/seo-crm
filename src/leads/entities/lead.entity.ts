@@ -38,7 +38,7 @@ export class Lead {
   lastName: string;
 
   @ApiProperty({ example: 'john.doe@example.com', description: 'Lead email' })
-  @Column({ unique: true })
+  @Column({ unique: false })
   email: string;
 
   @ApiProperty({ example: '+1234567890', description: 'Lead phone number' })
