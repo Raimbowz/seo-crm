@@ -77,8 +77,6 @@ export class SitesService {
         variables[cleanKey] = v.value;
       }
     }
-    console.log(`Site ${site.id} variables:`, variables);
-
     // Также получаем глобальные переменные (с siteId = null)
     const globalVariablesArr = await this.variablesService.getAllVariables();
     for (const v of globalVariablesArr) {
@@ -90,7 +88,6 @@ export class SitesService {
         }
       }
     }
-    console.log(`All variables (site + global):`, variables);
 
     // Собираем все blockIds по всем страницам/шаблонам
     const allBlockIds: number[] = [];
@@ -198,8 +195,6 @@ export class SitesService {
       siteVariables['site_name'] = site.name || '';
     }
     
-    console.log(`Final siteVariables passed to frontend:`, siteVariables);
-    
     // Заменяем переменные в объекте сайта через новый сервис
     let siteWithVars = await this.variableReplacementService.replaceVariables(
       site,
@@ -209,7 +204,6 @@ export class SitesService {
     
     // Добавляем все переменные в объект сайта для доступа в Handlebars templates
     siteWithVars.variables = siteVariables;
-    console.log(`siteWithVars.variables:`, siteWithVars.variables);
     siteWithVars.pages = pagesWithTemplates;
     return siteWithVars;
   }
