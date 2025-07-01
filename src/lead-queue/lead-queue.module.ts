@@ -6,11 +6,15 @@ import { LeadQueueController } from './lead-queue.controller';
 import { LeadQueueScheduler } from './lead-queue.scheduler';
 import { Partner } from '../partners/entities/partner.entity';
 import { PartnersModule } from '../partners/partners.module';
+import { ConfigModule } from '../config/config.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([LeadQueue, Partner]),
     PartnersModule,
+    ConfigModule,
+    AuthModule,
   ],
   providers: [LeadQueueService, LeadQueueScheduler],
   controllers: [LeadQueueController],
