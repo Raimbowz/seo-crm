@@ -147,78 +147,56 @@ export class SitesService {
       template.content = content;
     }
 
+    // Собираем все переменные включая системные и город
+    const allVariables = { ...variables };
+    
     // Формируем финальный ответ с заменой переменных
     const pagesWithTemplates: any[] = [];
     for (const page of pages) {
       // Получаем город для страницы (или Москву)
       const city = await this.getCityOrDefault(page.cityId);
-      // Заменяем переменные во всех строках страницы
-      let pageWithVars = parseAllStrings(page, variables, city, site);
-      // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
-      pageWithVars = await this.variableReplacementService.replaceVariables(
-        pageWithVars,
+      
+      // Добавляем городские переменные
+      const pageVariables = { ...allVariables };
+      if (city) {
+        pageVariables['city'] = city.name || '';
+        pageVariables['city_genetive'] = city.nameGenitive || '';
+        pageVariables['city_dative'] = city.nameDative || '';
+        pageVariables['city_accusative'] = city.nameAccusative || '';
+        pageVariables['city_instrumental'] = city.nameInstrumental || '';
+        pageVariables['city_prepositional'] = city.namePrepositional || '';
+      }
+      
+      // Добавляем переменные сайта
+      if (site) {
+        pageVariables['site_name'] = site.name || '';
+      }
+      
+      // Заменяем переменные через новый сервис
+      let pageWithVars = await this.variableReplacementService.replaceVariables(
+        page,
         'ru-RU',
-        variables,
+        pageVariables,
       );
-      // Заменяем переменные в шаблоне (template.content)
-      if (pageWithVars.template && pageWithVars.template.content) {
-        pageWithVars.template.content = replaceVariablesInContent(
-          pageWithVars.template.content,
-          variables,
-          city,
-          site,
-        );
-        // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
-        pageWithVars.template.content =
-          await this.variableReplacementService.replaceVariables(
-            pageWithVars.template.content,
-            'ru-RU',
-            variables,
-          );
-      }
-      // Заменяем переменные в блоках (blockContent)
-      if (
-        pageWithVars.template &&
-        Array.isArray(pageWithVars.template.content)
-      ) {
-        for (const row of pageWithVars.template.content) {
-          if (row.columns && Array.isArray(row.columns)) {
-            for (const col of row.columns) {
-              if (col.blocks && Array.isArray(col.blocks)) {
-                for (const block of col.blocks) {
-                  if (block.blockContent) {
-                    // Заменяем переменные во всем blockContent, а не только в content
-                    block.blockContent = replaceVariablesInContent(
-                      block.blockContent,
-                      variables,
-                      city,
-                      site,
-                    );
-                    // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
-                    block.blockContent =
-                      await this.variableReplacementService.replaceVariables(
-                        block.blockContent,
-                        'ru-RU',
-                        variables,
-                      );
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      
       pagesWithTemplates.push(pageWithVars);
     }
 
-    // Парсим все строки у сайта
-    let siteWithVars = parseAllStrings(site, variables, null, site);
-    // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
-    siteWithVars = await this.variableReplacementService.replaceVariables(
-      siteWithVars,
+    // Добавляем переменные сайта для замены в самом объекте сайта
+    const siteVariables = { ...allVariables };
+    if (site) {
+      siteVariables['site_name'] = site.name || '';
+    }
+    
+    // Заменяем переменные в объекте сайта через новый сервис
+    let siteWithVars = await this.variableReplacementService.replaceVariables(
+      site,
       'ru-RU',
-      variables,
+      siteVariables,
     );
+    
+    // Добавляем все переменные в объект сайта для доступа в Handlebars templates
+    siteWithVars.variables = siteVariables;
     siteWithVars.pages = pagesWithTemplates;
     return siteWithVars;
   }
@@ -261,80 +239,3 @@ function extractBlockIdsFromContent(content: any): number[] {
   return ids;
 }
 
-// Рекурсивная функция для замены переменных в любом контенте
-function replaceVariablesInContent(
-  content: any,
-  variables: Record<string, string>,
-  city: any,
-  site?: any,
-): any {
-  if (typeof content === 'string') {
-    // Заменяем [*var*] на значения из variables, города и сайта
-    return content.replace(/\[\*(.*?)\*\]/g, (match, varName) => {
-      varName = varName.trim();
-      if (variables[varName] !== undefined) return variables[varName];
-      // Системные переменные для города
-      if (city) {
-        if (varName.startsWith('city_')) {
-          const field =
-            varName === 'city'
-              ? 'name'
-              : varName === 'city_genetive'
-                ? 'nameGenitive'
-                : varName === 'city_dative'
-                  ? 'nameDative'
-                  : varName === 'city_accusative'
-                    ? 'nameAccusative'
-                    : varName === 'city_instrumental'
-                      ? 'nameInstrumental'
-                      : varName === 'city_prepositional'
-                        ? 'namePrepositional'
-                        : null;
-          if (field && city[field]) return city[field];
-        }
-      }
-      // Системная переменная module_sites_entity_name
-      if (site && varName === 'site_name') {
-        return site.name || '';
-      }
-      return match; // если не нашли — не заменяем
-    });
-  } else if (Array.isArray(content)) {
-    return content.map((item) =>
-      replaceVariablesInContent(item, variables, city, site),
-    );
-  } else if (typeof content === 'object' && content !== null) {
-    const result: any = {};
-    for (const key of Object.keys(content)) {
-      result[key] = replaceVariablesInContent(
-        content[key],
-        variables,
-        city,
-        site,
-      );
-    }
-    return result;
-  }
-  return content;
-}
-
-// Рекурсивно парсит все строки в объекте через replaceVariablesInContent
-function parseAllStrings(
-  obj: any,
-  variables: Record<string, string>,
-  city: any,
-  site: any,
-): any {
-  if (typeof obj === 'string') {
-    return replaceVariablesInContent(obj, variables, city, site);
-  } else if (Array.isArray(obj)) {
-    return obj.map((item) => parseAllStrings(item, variables, city, site));
-  } else if (typeof obj === 'object' && obj !== null) {
-    const result: any = {};
-    for (const key of Object.keys(obj)) {
-      result[key] = parseAllStrings(obj[key], variables, city, site);
-    }
-    return result;
-  }
-  return obj;
-}
