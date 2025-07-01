@@ -51,6 +51,17 @@ export class PartnersController {
     return this.partnersService.findAll();
   }
 
+  @Get('by-site/:siteId')
+  @ApiOperation({ summary: 'Get partners by site ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return partners for the site',
+    type: [Partner],
+  })
+  findBySite(@Param('siteId', ParseIntPipe) siteId: number): Promise<Partner[]> {
+    return this.partnersService.findBySiteId(siteId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a partner by id' })
   @ApiResponse({

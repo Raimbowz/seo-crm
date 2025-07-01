@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateLeadDto } from './dto/create-lead.dto';
@@ -8,15 +8,19 @@ import { Site } from '../sites/entities/site.entity';
 import { Request } from 'express';
 import axios from 'axios';
 import { PagesService } from '../pages/pages.service';
+import { PartnersService } from '../partners/partners.service';
 
 @Injectable()
 export class LeadsService {
+  private readonly logger = new Logger(LeadsService.name);
+
   constructor(
     @InjectRepository(Lead)
     private readonly leadRepository: Repository<Lead>,
     @InjectRepository(Site)
     private readonly siteRepository: Repository<Site>,
     private readonly pagesService: PagesService,
+    private readonly partnersService: PartnersService,
   ) {}
 
   async create(createLeadDto: CreateLeadDto): Promise<Lead> {
@@ -121,7 +125,10 @@ export class LeadsService {
       // Create the lead
       const lead = await this.create(createLeadDto);
 
-    
+      // Send lead to partners asynchronously (don't block the response)
+      this.sendLeadToPartners(lead).catch(error => {
+        this.logger.error('Failed to send lead to partners:', error);
+      });
 
       return {
         success: true,
@@ -159,5 +166,50 @@ export class LeadsService {
     
     // Fallback to connection remote address
     return req.socket.remoteAddress || req.ip || '';
+  }
+
+  private async sendLeadToPartners(lead: Lead): Promise<void> {
+    if (!lead.siteId) {
+      this.logger.warn('Lead has no siteId, skipping partner integration');
+      return;
+    }
+
+    try {
+      // Get partners for this site
+      const partners = await this.partnersService.findBySiteId(lead.siteId);
+      
+      if (partners.length === 0) {
+        this.logger.log(`No active partners found for site ID: ${lead.siteId}`);
+        return;
+      }
+
+      this.logger.log(`Found ${partners.length} partners for site ID: ${lead.siteId}`);
+
+      // Send lead to each partner
+      const promises = partners.map(partner => 
+        this.partnersService.sendLeadToPartner(partner, lead)
+          .then(success => ({ partner: partner.name, success }))
+          .catch(error => ({ partner: partner.name, success: false, error: error.message }))
+      );
+
+      const results = await Promise.allSettled(promises);
+      
+      // Log results
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+          const { partner, success } = result.value;
+          if (success) {
+            this.logger.log(`Successfully sent lead ${lead.id} to partner: ${partner}`);
+          } else {
+            this.logger.error(`Failed to send lead ${lead.id} to partner: ${partner}`);
+          }
+        } else {
+          this.logger.error(`Error processing partner ${partners[index].name}:`, result.reason);
+        }
+      });
+
+    } catch (error) {
+      this.logger.error('Error in sendLeadToPartners:', error);
+    }
   }
 }

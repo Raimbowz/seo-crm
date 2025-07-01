@@ -7,6 +7,7 @@ import { Site } from '../sites/entities/site.entity';
 import { AuthModule } from '../auth/auth.module';
 import { ConfigModule } from '../config/config.module';
 import { PagesModule } from '../pages/pages.module';
+import { PartnersModule } from '../partners/partners.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PagesModule } from '../pages/pages.module';
     AuthModule,
     ConfigModule,
     PagesModule,
+    PartnersModule,
   ],
   controllers: [LeadsController],
   providers: [LeadsService],

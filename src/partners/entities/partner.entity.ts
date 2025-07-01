@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Page } from '../../pages/entities/page.entity';
+import { Column, Entity, ManyToMany, JoinTable, PrimaryGeneratedColumn } from 'typeorm';
+import { Site } from '../../sites/entities/site.entity';
 
 @Entity('partners')
 export class Partner {
@@ -11,6 +11,10 @@ export class Partner {
   @ApiProperty({ example: 'Acme Inc.', description: 'Partner company name' })
   @Column()
   name: string;
+
+  @ApiProperty({ example: 'Lead provider for trading platform', description: 'Partner description' })
+  @Column({ nullable: true })
+  description: string;
 
   @ApiProperty({ example: 'John Doe', description: 'Partner contact person' })
   @Column()
@@ -35,6 +39,28 @@ export class Partner {
   @Column({ nullable: true })
   website: string;
 
+  @ApiProperty({ example: 'https://api.partner.com/leads', description: 'API endpoint URL for lead submission' })
+  @Column()
+  apiUrl: string;
+
+  @ApiProperty({ example: 'POST', description: 'HTTP method for API requests' })
+  @Column({ default: 'POST' })
+  apiMethod: string;
+
+  @ApiProperty({ 
+    example: '{"Authorization": "Bearer token123", "Content-Type": "application/json"}', 
+    description: 'Additional headers for API requests (JSON format)' 
+  })
+  @Column({ type: 'text', nullable: true })
+  apiHeaders: string;
+
+  @ApiProperty({ 
+    example: '{"firstName": "fname", "lastName": "lname", "email": "email", "phone": "profile[phone]"}', 
+    description: 'Field mapping from lead to partner API (JSON format)' 
+  })
+  @Column({ type: 'text' })
+  fieldMapping: string;
+
   @ApiProperty({ example: true, description: 'Whether the partner is active' })
   @Column({ default: true })
   isActive: boolean;
@@ -57,6 +83,12 @@ export class Partner {
   })
   updatedAt: Date;
 
-  @OneToMany(() => Page, (page) => page.partner)
-  pages: Page[];
+  @ApiProperty({ description: 'Sites connected to this partner' })
+  @ManyToMany(() => Site, (site) => site.partners)
+  @JoinTable({
+    name: 'partner_sites',
+    joinColumn: { name: 'partnerId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'siteId', referencedColumnName: 'id' },
+  })
+  sites: Site[];
 }

@@ -1,12 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
   IsBoolean,
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,
   MaxLength,
+  IsJSON,
+  IsNumber,
 } from 'class-validator';
 
 export class CreatePartnerDto {
@@ -15,6 +19,12 @@ export class CreatePartnerDto {
   @IsNotEmpty()
   @MaxLength(100)
   name: string;
+
+  @ApiProperty({ example: 'Lead provider for trading platform', description: 'Partner description' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  description?: string;
 
   @ApiProperty({ example: 'John Doe', description: 'Partner contact person' })
   @IsString()
@@ -44,6 +54,43 @@ export class CreatePartnerDto {
   @IsUrl()
   @IsOptional()
   website?: string;
+
+  @ApiProperty({ example: 'https://api.partner.com/leads', description: 'API endpoint URL for lead submission' })
+  @IsUrl()
+  @IsNotEmpty()
+  apiUrl: string;
+
+  @ApiProperty({ example: 'POST', description: 'HTTP method for API requests' })
+  @IsString()
+  @IsIn(['GET', 'POST', 'PUT', 'PATCH'])
+  @IsOptional()
+  apiMethod?: string;
+
+  @ApiProperty({ 
+    example: '{"Authorization": "Bearer token123", "Content-Type": "application/json"}', 
+    description: 'Additional headers for API requests (JSON format)' 
+  })
+  @IsJSON()
+  @IsOptional()
+  apiHeaders?: string;
+
+  @ApiProperty({ 
+    example: '{"firstName": "fname", "lastName": "lname", "email": "email", "phone": "profile[phone]"}', 
+    description: 'Field mapping from lead to partner API (JSON format)' 
+  })
+  @IsJSON()
+  @IsNotEmpty()
+  fieldMapping: string;
+
+  @ApiProperty({
+    example: [1, 2, 3],
+    description: 'Array of site IDs to connect to this partner',
+    required: false,
+  })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  siteIds?: number[];
 
   @ApiProperty({
     example: true,

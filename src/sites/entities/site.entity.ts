@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Page } from '../../pages/entities/page.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { SiteAccess } from 'src/site-access/entities/site-access.entity';
 import { Block } from 'src/blocks/entities/block.entity';
 import { Variable } from 'src/variables/entities/variable.entity';
 import { Template } from 'src/templates/entities/template.entity';
+import { Partner } from 'src/partners/entities/partner.entity';
 
 @Entity('sites')
 export class Site {
@@ -111,5 +112,9 @@ export class Site {
 
   @OneToMany(() => Template, (template) => template.site)
   templates: Template[];
+
+  @ApiProperty({ description: 'Partners connected to this site' })
+  @ManyToMany(() => Partner, (partner) => partner.sites)
+  partners: Partner[];
   
 } 
