@@ -71,15 +71,23 @@ export class SitesService {
     const variablesArr = await this.variablesService.findBySiteId(site.id);
     const variables: Record<string, string> = {};
     for (const v of variablesArr) {
-      if (v.isActive) variables[v.key] = v.value;
+      if (v.isActive) {
+        // Убираем скобки из ключа если они есть
+        const cleanKey = v.key.replace(/^\[\*|\*\]$/g, '');
+        variables[cleanKey] = v.value;
+      }
     }
     console.log(`Site ${site.id} variables:`, variables);
 
     // Также получаем глобальные переменные (с siteId = null)
     const globalVariablesArr = await this.variablesService.getAllVariables();
     for (const v of globalVariablesArr) {
-      if (v.isActive && !v.siteId && !variables[v.key]) {
-        variables[v.key] = v.value;
+      if (v.isActive && !v.siteId) {
+        // Убираем скобки из ключа если они есть
+        const cleanKey = v.key.replace(/^\[\*|\*\]$/g, '');
+        if (!variables[cleanKey]) {
+          variables[cleanKey] = v.value;
+        }
       }
     }
     console.log(`All variables (site + global):`, variables);
