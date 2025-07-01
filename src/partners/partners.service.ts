@@ -160,7 +160,8 @@ export class PartnersService {
       // Map lead data to partner format
       const mappedData: any = {};
       
-      for (const [leadField, partnerField] of Object.entries(fieldMapping)) {
+      for (const [leadField, partnerFieldValue] of Object.entries(fieldMapping)) {
+        const partnerField = String(partnerFieldValue);
         let value = leadData[leadField];
         
         // Handle nested fields like formData.firstName
@@ -200,7 +201,7 @@ export class PartnersService {
       };
 
       // Make API request
-      let response;
+      let response: any;
       if (partner.apiMethod.toUpperCase() === 'GET') {
         // For GET requests, send data as query params
         response = await firstValueFrom(
