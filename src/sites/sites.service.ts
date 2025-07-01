@@ -153,10 +153,11 @@ export class SitesService {
             for (const col of row.columns) {
               if (col.blocks && Array.isArray(col.blocks)) {
                 for (const block of col.blocks) {
-                  if (block.blockContent && block.blockContent.content) {
-                    block.blockContent.content = replaceVariablesInContent(block.blockContent.content, variables, city, site);
+                  if (block.blockContent) {
+                    // Заменяем переменные во всем blockContent, а не только в content
+                    block.blockContent = replaceVariablesInContent(block.blockContent, variables, city, site);
                     // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
-                    block.blockContent.content = await this.variableReplacementService.replaceVariables(block.blockContent.content, 'ru-RU', variables);
+                    block.blockContent = await this.variableReplacementService.replaceVariables(block.blockContent, 'ru-RU', variables);
                   }
                 }
               }
