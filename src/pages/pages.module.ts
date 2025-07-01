@@ -7,11 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import { ConfigModule } from '../config/config.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Page]), 
-    AuthModule,
-    ConfigModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Page]), AuthModule, ConfigModule],
   controllers: [PagesController],
   providers: [PagesService],
   exports: [PagesService],

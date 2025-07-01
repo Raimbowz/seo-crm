@@ -58,7 +58,9 @@ export class PartnersController {
     description: 'Return partners for the site',
     type: [Partner],
   })
-  findBySite(@Param('siteId', ParseIntPipe) siteId: number): Promise<Partner[]> {
+  findBySite(
+    @Param('siteId', ParseIntPipe) siteId: number,
+  ): Promise<Partner[]> {
     return this.partnersService.findBySiteId(siteId);
   }
 

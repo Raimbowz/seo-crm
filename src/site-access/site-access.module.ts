@@ -9,12 +9,18 @@ import { ConfigModule } from '../config/config.module';
 import { UsersProxyModule } from '../users-proxy/users-proxy.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SiteAccess]), AuthModule, JwtModule.register({
-    secret: process.env.JWT_SECRET,
-    signOptions: { expiresIn: '1h' },
-  }), ConfigModule, UsersProxyModule],
+  imports: [
+    TypeOrmModule.forFeature([SiteAccess]),
+    AuthModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' },
+    }),
+    ConfigModule,
+    UsersProxyModule,
+  ],
   providers: [SiteAccessService],
   controllers: [SiteAccessController],
   exports: [SiteAccessService],
 })
-export class SiteAccessModule {} 
+export class SiteAccessModule {}

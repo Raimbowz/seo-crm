@@ -11,8 +11,12 @@ export class CreateSiteAccessDto {
   @IsNotEmpty()
   siteId: number;
 
-  @ApiProperty({ example: '{"edit":true,"view":true}', description: 'Permissions (JSON)', required: false })
+  @ApiProperty({
+    example: '{"edit":true,"view":true}',
+    description: 'Permissions (JSON)',
+    required: false,
+  })
   @IsObject()
   @IsNotEmpty()
   permissions?: any;
-} 
+}

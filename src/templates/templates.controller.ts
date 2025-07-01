@@ -53,7 +53,10 @@ export class TemplatesController {
     description: 'Template has been successfully updated.',
   })
   @ApiResponse({ status: 404, description: 'Template not found.' })
-  update(@Param('id') id: string, @Body() updateTemplateDto: UpdateTemplateDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTemplateDto: UpdateTemplateDto,
+  ) {
     return this.templatesService.update(id, updateTemplateDto);
   }
 
@@ -67,4 +70,4 @@ export class TemplatesController {
   remove(@Param('id') id: string) {
     return this.templatesService.remove(id);
   }
-} 
+}

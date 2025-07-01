@@ -15,7 +15,10 @@ export class City {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty({ example: 'Москва', description: 'City name (nominative case)' })
+  @ApiProperty({
+    example: 'Москва',
+    description: 'City name (nominative case)',
+  })
   @Column({ unique: true })
   name: string;
 
@@ -27,15 +30,24 @@ export class City {
   @Column({ nullable: true })
   nameDative: string;
 
-  @ApiProperty({ example: 'Москву', description: 'City name in accusative case' })
+  @ApiProperty({
+    example: 'Москву',
+    description: 'City name in accusative case',
+  })
   @Column({ nullable: true })
   nameAccusative: string;
 
-  @ApiProperty({ example: 'Москвой', description: 'City name in instrumental case' })
+  @ApiProperty({
+    example: 'Москвой',
+    description: 'City name in instrumental case',
+  })
   @Column({ nullable: true })
   nameInstrumental: string;
 
-  @ApiProperty({ example: 'Москве', description: 'City name in prepositional case' })
+  @ApiProperty({
+    example: 'Москве',
+    description: 'City name in prepositional case',
+  })
   @Column({ nullable: true })
   namePrepositional: string;
 

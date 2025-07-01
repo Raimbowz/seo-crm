@@ -10,4 +10,4 @@ import { BlocksLocalesController } from './blocks-locales.controller';
   controllers: [BlocksLocalesController],
   exports: [BlocksLocalesService],
 })
-export class BlocksLocalesModule {} 
+export class BlocksLocalesModule {}

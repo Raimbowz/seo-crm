@@ -29,7 +29,10 @@ export class TemplatesService {
     return template;
   }
 
-  async update(id: string, updateTemplateDto: UpdateTemplateDto): Promise<Template> {
+  async update(
+    id: string,
+    updateTemplateDto: UpdateTemplateDto,
+  ): Promise<Template> {
     const template = await this.findOne(id);
     Object.assign(template, updateTemplateDto);
     return await this.templateRepository.save(template);
@@ -39,4 +42,4 @@ export class TemplatesService {
     const template = await this.findOne(id);
     await this.templateRepository.remove(template);
   }
-} 
+}

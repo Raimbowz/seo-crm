@@ -1,5 +1,11 @@
 import { ApiProperty, ApiExtraModels } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
 
 @ApiExtraModels()
 export class CreateVariableDto {
@@ -17,7 +23,8 @@ export class CreateVariableDto {
 
   @ApiProperty({
     example: 'Главная страница',
-    description: 'Значение переменной, которое будет подставлено вместо {{KEY}}.',
+    description:
+      'Значение переменной, которое будет подставлено вместо {{KEY}}.',
     type: String,
     minLength: 1,
     maxLength: 1024,
@@ -27,9 +34,8 @@ export class CreateVariableDto {
   @IsNotEmpty()
   value: string;
 
-
   @ApiProperty({
-    example:  'Название переменной',
+    example: 'Название переменной',
     description: 'Название переменной',
     type: String,
     required: true,
@@ -38,7 +44,7 @@ export class CreateVariableDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({  
+  @ApiProperty({
     example: 'Комментарий к переменной',
     description: 'Комментарий к переменной',
     type: String,
@@ -47,7 +53,7 @@ export class CreateVariableDto {
   @IsString()
   @IsOptional()
   comment?: string;
-  
+
   @ApiProperty({
     example: true,
     description: 'Активна ли переменная. Только активные участвуют в парсинге.',
@@ -61,7 +67,8 @@ export class CreateVariableDto {
 
   @ApiProperty({
     example: false,
-    description: 'Является ли переменная системной. Системные переменные нельзя удалить.',
+    description:
+      'Является ли переменная системной. Системные переменные нельзя удалить.',
     type: Boolean,
     required: false,
     default: false,
@@ -69,7 +76,6 @@ export class CreateVariableDto {
   @IsBoolean()
   @IsOptional()
   isSystem?: boolean;
-
 
   @ApiProperty({
     example: 1,
@@ -80,4 +86,4 @@ export class CreateVariableDto {
   @IsNumber()
   @IsOptional()
   siteId?: number;
-} 
+}

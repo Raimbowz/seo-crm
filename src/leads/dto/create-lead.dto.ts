@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEmail, IsPhoneNumber, IsOptional, IsEnum, IsIP, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsPhoneNumber,
+  IsOptional,
+  IsEnum,
+  IsIP,
+  IsNumber,
+} from 'class-validator';
 import { LeadStatus } from '../entities/lead.entity';
 
 export class CreateLeadDto {
@@ -33,7 +41,7 @@ export class CreateLeadDto {
     description: 'Lead status',
     required: false,
     enum: LeadStatus,
-    default: LeadStatus.NEW
+    default: LeadStatus.NEW,
   })
   @IsEnum(LeadStatus)
   @IsOptional()

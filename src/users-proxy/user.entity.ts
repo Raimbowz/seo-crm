@@ -1,4 +1,11 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { SiteAccess } from 'src/site-access/entities/site-access.entity';
@@ -19,7 +26,10 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty({ example: 'john.doe@example.com', description: 'Email address' })
+  @ApiProperty({
+    example: 'john.doe@example.com',
+    description: 'Email address',
+  })
   @Column({ unique: true })
   email: string;
 
@@ -31,7 +41,11 @@ export class User {
   @Column()
   lastName: string;
 
-  @ApiProperty({ enum: UserRole, example: UserRole.USER, description: 'User role' })
+  @ApiProperty({
+    enum: UserRole,
+    example: UserRole.USER,
+    description: 'User role',
+  })
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
@@ -39,11 +53,17 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @ApiProperty({ example: '2023-01-01T00:00:00Z', description: 'Account creation date' })
+  @ApiProperty({
+    example: '2023-01-01T00:00:00Z',
+    description: 'Account creation date',
+  })
   @CreateDateColumn()
   createdAt: Date;
 
-  @ApiProperty({ example: '2023-01-01T00:00:00Z', description: 'Account last update date' })
+  @ApiProperty({
+    example: '2023-01-01T00:00:00Z',
+    description: 'Account last update date',
+  })
   @UpdateDateColumn()
   updatedAt: Date;
 
@@ -54,5 +74,4 @@ export class User {
   @Exclude()
   @Column({ nullable: true })
   refreshToken?: string;
- 
-} 
+}

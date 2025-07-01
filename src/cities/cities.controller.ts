@@ -49,7 +49,7 @@ export class CitiesController {
     description: 'List of all cities',
     type: [City],
   })
-  async findAll()  {
+  async findAll() {
     try {
       return await this.citiesService.findAll();
     } catch (error) {
@@ -94,7 +94,9 @@ export class CitiesController {
   @Patch('bulk')
   @ApiOperation({ summary: 'Bulk update cities' })
   @ApiOkResponse({ description: 'Cities updated', type: [City] })
-  async updateMany(@Body() dtos: Array<{ id: number } & UpdateCityDto>): Promise<City[]> {
-    return this.citiesService.updateMany(dtos)
+  async updateMany(
+    @Body() dtos: Array<{ id: number } & UpdateCityDto>,
+  ): Promise<City[]> {
+    return this.citiesService.updateMany(dtos);
   }
 }

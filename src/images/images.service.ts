@@ -10,7 +10,8 @@ import { UpdateImageDto } from './dto/update-image.dto';
 
 @Injectable()
 export class ImagesService {
-  private readonly imageServiceUrl = process.env.IMAGE_SERVICE_URL || 'http://localhost:3100';
+  private readonly imageServiceUrl =
+    process.env.IMAGE_SERVICE_URL || 'http://localhost:3100';
 
   constructor(
     @InjectRepository(Image)
@@ -25,13 +26,19 @@ export class ImagesService {
 
   async findAll(siteId?: number, includeGlobal = true): Promise<Image[]> {
     const queryBuilder = this.imageRepository.createQueryBuilder('image');
-    
-    console.log('ImagesService.findAll called with:', { siteId, includeGlobal });
-    
+
+    console.log('ImagesService.findAll called with:', {
+      siteId,
+      includeGlobal,
+    });
+
     if (siteId !== undefined) {
       if (includeGlobal) {
         // Показываем изображения конкретного сайта + глобальные
-        queryBuilder.where('(image.siteId = :siteId OR image.isGlobal = true)', { siteId });
+        queryBuilder.where(
+          '(image.siteId = :siteId OR image.isGlobal = true)',
+          { siteId },
+        );
         console.log('Query: siteId specific + global');
       } else {
         // Показываем только изображения конкретного сайта
@@ -49,11 +56,11 @@ export class ImagesService {
         console.log('Query: global only');
       }
     }
-    
+
     const sql = queryBuilder.getSql();
     const params = queryBuilder.getParameters();
     console.log('Generated SQL:', sql, 'Params:', params);
-    
+
     return queryBuilder.orderBy('image.createdAt', 'DESC').getMany();
   }
 
@@ -75,16 +82,19 @@ export class ImagesService {
 
   async remove(id: number): Promise<void> {
     const image = await this.findOne(id);
-    
+
     // Попытаемся удалить с внешнего сервиса
     if (image.link) {
       await this.deleteFromExternalService(image.link);
     }
-    
+
     await this.imageRepository.remove(image);
   }
 
-  async uploadToExternalService(buffer: Buffer, filename: string): Promise<any> {
+  async uploadToExternalService(
+    buffer: Buffer,
+    filename: string,
+  ): Promise<any> {
     try {
       // Определяем content-type по расширению файла
       const ext = filename.toLowerCase().split('.').pop();
@@ -102,18 +112,27 @@ export class ImagesService {
       formData.append('optimize', 'true');
 
       const response = await firstValueFrom(
-        this.httpService.post(`${this.imageServiceUrl}/images/upload`, formData, {
-          headers: {
-            ...formData.getHeaders(),
+        this.httpService.post(
+          `${this.imageServiceUrl}/images/upload`,
+          formData,
+          {
+            headers: {
+              ...formData.getHeaders(),
+            },
           },
-        })
+        ),
       );
 
       // Локальный сервис возвращает полную информацию об изображении
       return response.data;
     } catch (error) {
-      console.error('Upload error details:', error.response?.data || error.message);
-      throw new Error(`Failed to upload to external service: ${error.response?.data?.message || error.message}`);
+      console.error(
+        'Upload error details:',
+        error.response?.data || error.message,
+      );
+      throw new Error(
+        `Failed to upload to external service: ${error.response?.data?.message || error.message}`,
+      );
     }
   }
 
@@ -122,9 +141,9 @@ export class ImagesService {
       // Извлекаем ID или путь из URL для удаления
       const urlParts = imageUrl.split('/');
       const imageId = urlParts[urlParts.length - 1];
-      
+
       await firstValueFrom(
-        this.httpService.delete(`${this.imageServiceUrl}/images/${imageId}`)
+        this.httpService.delete(`${this.imageServiceUrl}/images/${imageId}`),
       );
     } catch (error) {
       console.warn(`Failed to delete from external service: ${error.message}`);
@@ -137,8 +156,8 @@ export class ImagesService {
     if (link.startsWith('http://') || link.startsWith('https://')) {
       return link;
     }
-    
+
     // Для всех относительных ссылок используем локальный сервис
     return `${this.imageServiceUrl}${link.startsWith('/') ? link : '/' + link}`;
   }
-} 
+}

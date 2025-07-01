@@ -155,20 +155,24 @@ export class PartnersService {
     try {
       // Parse field mapping
       const fieldMapping = JSON.parse(partner.fieldMapping);
-      const apiHeaders = partner.apiHeaders ? JSON.parse(partner.apiHeaders) : {};
-      
+      const apiHeaders = partner.apiHeaders
+        ? JSON.parse(partner.apiHeaders)
+        : {};
+
       // Map lead data to partner format
       const mappedData: any = {};
-      
-      for (const [leadField, partnerFieldValue] of Object.entries(fieldMapping)) {
+
+      for (const [leadField, partnerFieldValue] of Object.entries(
+        fieldMapping,
+      )) {
         const partnerField = String(partnerFieldValue);
         let value = leadData[leadField];
-        
+
         // Handle nested fields like formData.firstName
         if (!value && leadData.formData && leadData.formData[leadField]) {
           value = leadData.formData[leadField];
         }
-        
+
         if (value !== undefined && value !== null) {
           // Handle nested partner fields like profile[phone]
           if (partnerField.includes('[') && partnerField.includes(']')) {
@@ -188,7 +192,9 @@ export class PartnersService {
         }
       }
 
-      this.logger.log(`Sending lead to partner ${partner.name}: ${partner.apiUrl}`);
+      this.logger.log(
+        `Sending lead to partner ${partner.name}: ${partner.apiUrl}`,
+      );
       this.logger.debug('Mapped data:', mappedData);
 
       // Prepare request config
@@ -208,7 +214,7 @@ export class PartnersService {
           this.httpService.get(partner.apiUrl, {
             ...config,
             params: mappedData,
-          })
+          }),
         );
       } else {
         // For POST/PUT/PATCH, send data in body
@@ -218,15 +224,19 @@ export class PartnersService {
             url: partner.apiUrl,
             data: mappedData,
             ...config,
-          })
+          }),
         );
       }
 
-      this.logger.log(`Successfully sent lead to partner ${partner.name}. Status: ${response.status}`);
+      this.logger.log(
+        `Successfully sent lead to partner ${partner.name}. Status: ${response.status}`,
+      );
       return true;
-
     } catch (error) {
-      this.logger.error(`Failed to send lead to partner ${partner.name}:`, error.message);
+      this.logger.error(
+        `Failed to send lead to partner ${partner.name}:`,
+        error.message,
+      );
       if (error.response) {
         this.logger.error('Response data:', error.response.data);
       }

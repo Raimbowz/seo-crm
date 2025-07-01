@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BlockLocale } from '../../blocks-locales/entities/block-locale.entity';
 import { Site } from 'src/sites/entities/site.entity';
@@ -38,7 +46,7 @@ export class Block {
   @Column()
   siteId: number;
 
-  @OneToMany(() => BlockLocale, locale => locale.block)
+  @OneToMany(() => BlockLocale, (locale) => locale.block)
   locales: BlockLocale[];
 
   @ApiProperty({ description: 'Whether the block is global' })
@@ -61,6 +69,6 @@ export class Block {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Site, site => site.blocks)
-  site: Site; 
+  @ManyToOne(() => Site, (site) => site.blocks)
+  site: Site;
 }

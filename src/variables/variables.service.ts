@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Variable } from './entities/variable.entity';
@@ -12,9 +16,14 @@ export class VariablesService {
     private readonly variableRepository: Repository<Variable>,
   ) {}
 
-  async createVariable(createVariableDto: CreateVariableDto): Promise<Variable> {
-    const exists = await this.variableRepository.findOne({ where: { key: createVariableDto.key } });
-    if (exists) throw new BadRequestException('Variable with this key already exists');
+  async createVariable(
+    createVariableDto: CreateVariableDto,
+  ): Promise<Variable> {
+    const exists = await this.variableRepository.findOne({
+      where: { key: createVariableDto.key },
+    });
+    if (exists)
+      throw new BadRequestException('Variable with this key already exists');
     const variable = this.variableRepository.create(createVariableDto);
     return this.variableRepository.save(variable);
   }
@@ -24,9 +33,9 @@ export class VariablesService {
   }
 
   async findBySiteId(siteId: number): Promise<Variable[]> {
-    return this.variableRepository.find({ 
+    return this.variableRepository.find({
       where: { siteId },
-      order: { createdAt: 'ASC' }
+      order: { createdAt: 'ASC' },
     });
   }
 
@@ -36,7 +45,10 @@ export class VariablesService {
     return variable;
   }
 
-  async updateVariable(id: number, updateVariableDto: UpdateVariableDto): Promise<Variable> {
+  async updateVariable(
+    id: number,
+    updateVariableDto: UpdateVariableDto,
+  ): Promise<Variable> {
     const variable = await this.getVariableById(id);
     Object.assign(variable, updateVariableDto);
     return this.variableRepository.save(variable);
@@ -51,11 +63,16 @@ export class VariablesService {
    * Парсит текст, заменяя {{KEY}} на значение переменной
    */
   async parseText(text: string): Promise<string> {
-    const variables = await this.variableRepository.find({ where: { isActive: true } });
+    const variables = await this.variableRepository.find({
+      where: { isActive: true },
+    });
     let parsed = text;
     for (const variable of variables) {
-      parsed = parsed.replace(new RegExp(`{{${variable.key}}}`, 'g'), variable.value);
+      parsed = parsed.replace(
+        new RegExp(`{{${variable.key}}}`, 'g'),
+        variable.value,
+      );
     }
     return parsed;
   }
-} 
+}

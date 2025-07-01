@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsJSON, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  IsJSON,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateBlockDto {
   @ApiProperty({ description: 'The name of the block' })
@@ -27,12 +34,18 @@ export class CreateBlockDto {
   @IsOptional()
   isGlobal?: boolean;
 
-  @ApiProperty({ description: 'Whether to show buttons in the block', required: false })
+  @ApiProperty({
+    description: 'Whether to show buttons in the block',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   showButtons?: boolean;
 
-  @ApiProperty({ description: 'Whether to show contacts in the block', required: false })
+  @ApiProperty({
+    description: 'Whether to show contacts in the block',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   showContacts?: boolean;

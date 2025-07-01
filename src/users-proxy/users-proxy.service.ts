@@ -5,7 +5,8 @@ import { Request } from 'express';
 
 @Injectable()
 export class UsersProxyService {
-  private readonly ssoUrl = process.env.SSO_SERVICE_URL || 'http://localhost:3001'; // Укажите актуальный порт sso
+  private readonly ssoUrl =
+    process.env.SSO_SERVICE_URL || 'http://localhost:3001'; // Укажите актуальный порт sso
 
   constructor(private readonly http: HttpService) {}
 
@@ -16,14 +17,18 @@ export class UsersProxyService {
 
   async findAll(req: Request) {
     const res = await firstValueFrom(
-      this.http.get(`${this.ssoUrl}/users`, { headers: this.getAuthHeader(req) })
+      this.http.get(`${this.ssoUrl}/users`, {
+        headers: this.getAuthHeader(req),
+      }),
     );
     return res.data;
   }
 
-  async findOne(id: number, req: Request) {       
+  async findOne(id: number, req: Request) {
     const res = await firstValueFrom(
-      this.http.get(`${this.ssoUrl}/users/${id}`, { headers: this.getAuthHeader(req) })
+      this.http.get(`${this.ssoUrl}/users/${id}`, {
+        headers: this.getAuthHeader(req),
+      }),
     );
     console.log(res.data);
     return res.data;
@@ -31,22 +36,28 @@ export class UsersProxyService {
 
   async create(data: any, req: Request) {
     const res = await firstValueFrom(
-      this.http.post(`${this.ssoUrl}/users`, data, { headers: this.getAuthHeader(req) })
+      this.http.post(`${this.ssoUrl}/users`, data, {
+        headers: this.getAuthHeader(req),
+      }),
     );
     return res.data;
   }
 
   async update(id: number, data: any, req: Request) {
     const res = await firstValueFrom(
-      this.http.patch(`${this.ssoUrl}/users/${id}`, data, { headers: this.getAuthHeader(req) })
+      this.http.patch(`${this.ssoUrl}/users/${id}`, data, {
+        headers: this.getAuthHeader(req),
+      }),
     );
     return res.data;
   }
 
   async delete(id: number, req: Request) {
     const res = await firstValueFrom(
-      this.http.delete(`${this.ssoUrl}/users/${id}`, { headers: this.getAuthHeader(req) })
+      this.http.delete(`${this.ssoUrl}/users/${id}`, {
+        headers: this.getAuthHeader(req),
+      }),
     );
     return res.data;
   }
-} 
+}

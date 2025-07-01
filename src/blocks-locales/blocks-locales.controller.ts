@@ -1,8 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { BlocksLocalesService } from './blocks-locales.service';
 import { CreateBlockLocaleDto } from './dto/create-block-locale.dto';
 import { UpdateBlockLocaleDto } from './dto/update-block-locale.dto';
-import { ApiTags, ApiOperation, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiCreatedResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
 @ApiTags('Block Locales')
 @Controller('block-locales')
@@ -44,4 +58,4 @@ export class BlocksLocalesController {
   async remove(@Param('id') id: string) {
     return await this.blocksLocalesService.remove(Number(id));
   }
-} 
+}

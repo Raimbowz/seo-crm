@@ -8,4 +8,4 @@ export class UpdateSiteDto extends PartialType(CreateSiteDto) {
   @IsNumber()
   @IsNotEmpty()
   id: number;
-} 
+}

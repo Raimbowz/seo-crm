@@ -16,7 +16,7 @@ import { SitesModule } from './sites/sites.module';
 import { SiteAccessModule } from './site-access/site-access.module';
 import { LocalizationsModule } from './localizations/localizations.module';
 import { UsersProxyModule } from './users-proxy/users-proxy.module';
-  
+
 @Module({
   imports: [
     ConfigModule,

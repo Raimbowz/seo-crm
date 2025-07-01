@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Site } from 'src/sites/entities/site.entity';
 
@@ -27,7 +35,7 @@ export class Template {
   @ApiProperty({ description: 'The site ID of the template' })
   @Column()
   siteId: number;
-  
+
   @ApiProperty({ description: 'Whether the template is global' })
   @Column({ default: false })
   isGlobal: boolean;
@@ -43,7 +51,6 @@ export class Template {
   @ApiProperty({ description: 'Last update timestamp' })
   @UpdateDateColumn()
   updatedAt: Date;
-
 
   @ManyToOne(() => Site, (site) => site.templates)
   @JoinColumn({ name: 'siteId' })

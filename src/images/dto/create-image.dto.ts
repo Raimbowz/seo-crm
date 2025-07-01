@@ -6,11 +6,18 @@ export class CreateImageDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: '/images/static/cat.jpg', description: 'Ссылка на файл (относительный путь или url)' })
+  @ApiProperty({
+    example: '/images/static/cat.jpg',
+    description: 'Ссылка на файл (относительный путь или url)',
+  })
   @IsString()
   link: string;
 
-  @ApiProperty({ required: false, example: 'cats', description: 'Группа изображений' })
+  @ApiProperty({
+    required: false,
+    example: 'cats',
+    description: 'Группа изображений',
+  })
   @IsOptional()
   @IsString()
   group?: string;
@@ -25,18 +32,30 @@ export class CreateImageDto {
   @IsNumber()
   siteId?: number;
 
-  @ApiProperty({ default: false, example: true, description: 'Глобальное изображение (доступно для всех сайтов)' })
+  @ApiProperty({
+    default: false,
+    example: true,
+    description: 'Глобальное изображение (доступно для всех сайтов)',
+  })
   @IsOptional()
   @IsBoolean()
   isGlobal?: boolean;
 
-  @ApiProperty({ default: false, example: true, description: 'Публично ли изображение' })
+  @ApiProperty({
+    default: false,
+    example: true,
+    description: 'Публично ли изображение',
+  })
   @IsOptional()
   @IsBoolean()
   isPublic?: boolean;
 
-  @ApiProperty({ default: true, example: true, description: 'Активно ли изображение' })
+  @ApiProperty({
+    default: true,
+    example: true,
+    description: 'Активно ли изображение',
+  })
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
-} 
+}

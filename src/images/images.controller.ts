@@ -1,9 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+  Res,
+  Query,
+} from '@nestjs/common';
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 import { Image } from './entities/image.entity';
-import { ApiTags, ApiOperation, ApiBody, ApiConsumes, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiConsumes,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -28,18 +46,25 @@ export class ImagesController {
   @Get()
   @ApiOperation({ summary: 'Get all images' })
   @ApiResponse({ status: 200, type: [Image], description: 'Array of images' })
-  async findAll(@Query('siteId') siteId?: string, @Query('includeGlobal') includeGlobal?: string): Promise<any[]> {
-    const includeGlobalFlag = includeGlobal !== undefined ? includeGlobal === 'true' : true;
+  async findAll(
+    @Query('siteId') siteId?: string,
+    @Query('includeGlobal') includeGlobal?: string,
+  ): Promise<any[]> {
+    const includeGlobalFlag =
+      includeGlobal !== undefined ? includeGlobal === 'true' : true;
     const siteIdNumber = siteId ? Number(siteId) : undefined;
-    
-    console.log('Images query params:', { siteId: siteIdNumber, includeGlobal: includeGlobalFlag });
-    
+
+    console.log('Images query params:', {
+      siteId: siteIdNumber,
+      includeGlobal: includeGlobalFlag,
+    });
+
     const images = await this.imagesService.findAll(
       siteIdNumber,
-      includeGlobalFlag
+      includeGlobalFlag,
     );
     // Добавляем полные URL для каждого изображения
-    return images.map(image => ({
+    return images.map((image) => ({
       ...image,
       fullUrl: this.imagesService.getFullImageUrl(image.link),
     }));
@@ -62,7 +87,10 @@ export class ImagesController {
   @ApiParam({ name: 'id', type: Number })
   @ApiBody({ type: UpdateImageDto })
   @ApiResponse({ status: 200, type: Image, description: 'Updated image' })
-  update(@Param('id') id: string, @Body() updateImageDto: UpdateImageDto): Promise<Image> {
+  update(
+    @Param('id') id: string,
+    @Body() updateImageDto: UpdateImageDto,
+  ): Promise<Image> {
     return this.imagesService.update(Number(id), updateImageDto);
   }
 
@@ -75,10 +103,27 @@ export class ImagesController {
   }
 
   @Post('upload')
-  @ApiOperation({ summary: 'Upload image file to image service (without DB record)' })
+  @ApiOperation({
+    summary: 'Upload image file to image service (without DB record)',
+  })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } } })
-  @ApiResponse({ status: 201, schema: { example: { link: '/images/id.webp', url: '/images/id.webp', fullUrl: 'http://localhost:3100/images/id.webp' } }, description: 'Uploaded file info from image service' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    schema: {
+      example: {
+        link: '/images/id.webp',
+        url: '/images/id.webp',
+        fullUrl: 'http://localhost:3100/images/id.webp',
+      },
+    },
+    description: 'Uploaded file info from image service',
+  })
   async uploadFile(@Req() req: FastifyRequest) {
     console.log('🔥 Upload endpoint called - this should NOT create DB record');
     // @fastify/multipart required
@@ -87,7 +132,7 @@ export class ImagesController {
     let fileUrl = '';
     let filename = '';
     let uploadResult: any = null;
-    
+
     for await (const part of parts) {
       if (part.type === 'file') {
         // Читаем файл в буфер
@@ -97,16 +142,19 @@ export class ImagesController {
         }
         const buffer = Buffer.concat(chunks);
         filename = part.filename || 'uploaded-image';
-        
+
         // Загружаем на внешний сервис
-        uploadResult = await this.imagesService.uploadToExternalService(buffer, filename);
+        uploadResult = await this.imagesService.uploadToExternalService(
+          buffer,
+          filename,
+        );
         fileUrl = uploadResult.urls.processed;
         break;
       }
     }
-    
+
     if (!fileUrl || !uploadResult) throw new Error('No file uploaded');
-    
+
     // Возвращаем только информацию о файле без создания записи в БД
     // Запись в БД будет создана при сохранении формы
     return {
@@ -119,4 +167,4 @@ export class ImagesController {
       size: uploadResult.size,
     };
   }
-} 
+}

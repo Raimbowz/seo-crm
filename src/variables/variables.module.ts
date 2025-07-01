@@ -10,4 +10,4 @@ import { VariablesController } from './variables.controller';
   controllers: [VariablesController],
   exports: [VariablesService],
 })
-export class VariablesModule {} 
+export class VariablesModule {}

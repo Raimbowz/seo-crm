@@ -47,7 +47,10 @@ export class Page {
   @Column()
   siteId: number;
 
-  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'Template ID' })
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'Template ID',
+  })
   @Column()
   templateId: string;
 
@@ -63,14 +66,19 @@ export class Page {
   @Column({ default: false })
   isGlobal: boolean;
 
-  @ApiProperty({ example: true, description: 'Whether the page is main/homepage' })
+  @ApiProperty({
+    example: true,
+    description: 'Whether the page is main/homepage',
+  })
   @Column({ default: false })
   isMain: boolean;
 
-  @ApiProperty({ example: false, description: 'Whether the page is a thank you page' })
+  @ApiProperty({
+    example: false,
+    description: 'Whether the page is a thank you page',
+  })
   @Column({ default: false })
   isThankYouPage: boolean;
-
 
   @ApiProperty({
     example: '2023-05-15T10:30:00Z',
@@ -78,9 +86,6 @@ export class Page {
   })
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
-
-
-  
 
   @ApiProperty({
     example: '2023-05-15T10:30:00Z',
@@ -96,7 +101,10 @@ export class Page {
   @Column({ nullable: true })
   parentId: number;
 
-  @ManyToOne(() => Page, (page) => page.children, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => Page, (page) => page.children, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'parentId' })
   parent: Page;
 

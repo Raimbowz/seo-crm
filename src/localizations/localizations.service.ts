@@ -18,9 +18,7 @@ export class LocalizationsService {
     return this.localizationRepository.find();
   }
 
- 
-
-  async update(id: number, data: Partial<Localization>){
+  async update(id: number, data: Partial<Localization>) {
     await this.localizationRepository.update(id, data);
     return this.localizationRepository.findOneBy({ id });
   }
@@ -28,4 +26,4 @@ export class LocalizationsService {
   async remove(id: number): Promise<void> {
     await this.localizationRepository.delete(id);
   }
-} 
+}

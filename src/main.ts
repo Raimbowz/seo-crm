@@ -21,8 +21,8 @@ async function bootstrap() {
   const configService = app.get(AppConfigService);
   app.register(multipart as any, {
     limits: {
-      fileSize: 20 * 1024 * 1024 // 20 MB
-    }
+      fileSize: 20 * 1024 * 1024, // 20 MB
+    },
   });
   app.register(fastifyStatic as any, {
     root: path.join(__dirname, '../files/images'),

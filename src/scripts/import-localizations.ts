@@ -42,7 +42,7 @@ async function bootstrap() {
       if (!line.trim()) continue;
       const parts = line.split(',');
       if (parts.length < 5) {
-        console.warn(`Строка ${i+1} пропущена (мало столбцов): ${line}`);
+        console.warn(`Строка ${i + 1} пропущена (мало столбцов): ${line}`);
         continue;
       }
       const language = parts[1].trim();
@@ -53,19 +53,35 @@ async function bootstrap() {
       try {
         // Проверяем, есть ли уже такая локализация
         // (по language)
-        const existing = (await localizationsService.findAll()).find(l => l.language === language);
+        const existing = (await localizationsService.findAll()).find(
+          (l) => l.language === language,
+        );
         if (existing) {
-          await localizationsService.update(existing.id, { language, text, name, description, isActive: true });
+          await localizationsService.update(existing.id, {
+            language,
+            text,
+            name,
+            description,
+            isActive: true,
+          });
         } else {
-          await localizationsService.create({ language, text, name, description, isActive: true });
+          await localizationsService.create({
+            language,
+            text,
+            name,
+            description,
+            isActive: true,
+          });
         }
         successCount++;
       } catch (error) {
-        console.error(`Ошибка при импорте строки ${i+1}:`, error.message);
+        console.error(`Ошибка при импорте строки ${i + 1}:`, error.message);
         failureCount++;
       }
     }
-    console.log(`Импорт завершён. Успешно: ${successCount}, Ошибок: ${failureCount}`);
+    console.log(
+      `Импорт завершён. Успешно: ${successCount}, Ошибок: ${failureCount}`,
+    );
   } catch (error) {
     console.error('Ошибка при импорте:', error);
   } finally {
@@ -73,4 +89,4 @@ async function bootstrap() {
   }
 }
 
-bootstrap(); 
+bootstrap();

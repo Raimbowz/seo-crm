@@ -8,11 +8,11 @@ async function bootstrap() {
 
   try {
     console.log('Listing cities from database...');
-    
+
     const cities = await citiesService.findAll();
-    
+
     console.log(`Found ${cities.length} cities in the database:`);
-    
+
     cities.forEach((city) => {
       console.log(`ID: ${city.id}`);
       console.log(`Name: ${city.name}`);
@@ -23,7 +23,6 @@ async function bootstrap() {
       console.log(`Prepositional: ${city.namePrepositional}`);
       console.log('-----------------------------------');
     });
-
   } catch (error) {
     console.error('An error occurred:', error);
   } finally {
@@ -31,4 +30,4 @@ async function bootstrap() {
   }
 }
 
-bootstrap(); 
+bootstrap();

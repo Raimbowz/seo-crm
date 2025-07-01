@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Req,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { UsersProxyService } from './users-proxy.service';
 
@@ -22,7 +31,11 @@ export class UsersProxyController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: number, @Body() data: any, @Req() req: Request) {
+  async update(
+    @Param('id') id: number,
+    @Body() data: any,
+    @Req() req: Request,
+  ) {
     return this.usersProxyService.update(id, data, req);
   }
 
@@ -30,4 +43,4 @@ export class UsersProxyController {
   async delete(@Param('id') id: number, @Req() req: Request) {
     return this.usersProxyService.delete(id, req);
   }
-} 
+}

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateLeadDto } from './dto/create-lead.dto';
@@ -26,7 +31,7 @@ export class LeadsService {
   async create(createLeadDto: CreateLeadDto): Promise<Lead> {
     const lead = this.leadRepository.create({
       ...createLeadDto,
-      status: createLeadDto.status ? (createLeadDto.status as LeadStatus) : LeadStatus.NEW,
+      status: createLeadDto.status ? createLeadDto.status : LeadStatus.NEW,
     });
     return await this.leadRepository.save(lead);
   }
@@ -48,7 +53,7 @@ export class LeadsService {
     const updatedLead = {
       ...lead,
       ...updateLeadDto,
-      status: updateLeadDto.status ? (updateLeadDto.status as LeadStatus) : lead.status,
+      status: updateLeadDto.status ? updateLeadDto.status : lead.status,
     };
     return await this.leadRepository.save(updatedLead);
   }
@@ -58,16 +63,26 @@ export class LeadsService {
     await this.leadRepository.remove(lead);
   }
 
-  async submitForm(formData: any, req: Request): Promise<{ success: boolean; message: string; leadId?: string; redirectUrl?: string }> {
+  async submitForm(
+    formData: any,
+    req: Request,
+  ): Promise<{
+    success: boolean;
+    message: string;
+    leadId?: string;
+    redirectUrl?: string;
+  }> {
     try {
       // Extract IP address from request
       const ip = this.extractClientIP(req);
-      
+
       // Get geolocation data
       let countryCode = '';
       try {
         if (ip) {
-          const response = await axios.get(`https://vanadotrade.com/lead/api/ip?ip=${ip}`);
+          const response = await axios.get(
+            `https://vanadotrade.com/lead/api/ip?ip=${ip}`,
+          );
           countryCode = response.data.geo?.country_code || '';
         }
       } catch (error) {
@@ -78,20 +93,21 @@ export class LeadsService {
       let siteId: number | null = null;
       if (formData.domain) {
         try {
-          const site = await this.siteRepository.findOne({ 
-            where: { domain: formData.domain } 
+          const site = await this.siteRepository.findOne({
+            where: { domain: formData.domain },
           });
           if (site) {
             siteId = site.id;
           } else {
           }
-        } catch (error) {
-        }
+        } catch (error) {}
       }
 
       // Validate required fields
       if (!formData.firstName || !formData.email || !formData.phone) {
-        throw new BadRequestException('Missing required fields: firstName, email, phone');
+        throw new BadRequestException(
+          'Missing required fields: firstName, email, phone',
+        );
       }
 
       // Create lead DTO
@@ -118,15 +134,15 @@ export class LeadsService {
           utmMedium: formData.utm_medium || '',
           utmCampaign: formData.utm_campaign || '',
           utmTerm: formData.utm_term || '',
-          utmContent: formData.utm_content || ''
-        }
+          utmContent: formData.utm_content || '',
+        },
       };
 
       // Create the lead
       const lead = await this.create(createLeadDto);
 
       // Send lead to partners asynchronously (don't block the response)
-      this.sendLeadToPartners(lead).catch(error => {
+      this.sendLeadToPartners(lead).catch((error) => {
         this.logger.error('Failed to send lead to partners:', error);
       });
 
@@ -135,12 +151,11 @@ export class LeadsService {
         message: 'Form submitted successfully',
         leadId: lead.id,
       };
-
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      
+
       throw new BadRequestException('Failed to submit form');
     }
   }
@@ -150,20 +165,20 @@ export class LeadsService {
     const forwarded = req.headers['x-forwarded-for'];
     const realIP = req.headers['x-real-ip'];
     const cfConnectingIP = req.headers['cf-connecting-ip'];
-    
+
     if (typeof forwarded === 'string') {
       // X-Forwarded-For can contain multiple IPs, take the first one
       return forwarded.split(',')[0].trim();
     }
-    
+
     if (typeof realIP === 'string') {
       return realIP;
     }
-    
+
     if (typeof cfConnectingIP === 'string') {
       return cfConnectingIP;
     }
-    
+
     // Fallback to connection remote address
     return req.socket.remoteAddress || req.ip || '';
   }
@@ -177,37 +192,50 @@ export class LeadsService {
     try {
       // Get partners for this site
       const partners = await this.partnersService.findBySiteId(lead.siteId);
-      
+
       if (partners.length === 0) {
         this.logger.log(`No active partners found for site ID: ${lead.siteId}`);
         return;
       }
 
-      this.logger.log(`Found ${partners.length} partners for site ID: ${lead.siteId}`);
+      this.logger.log(
+        `Found ${partners.length} partners for site ID: ${lead.siteId}`,
+      );
 
       // Send lead to each partner
-      const promises = partners.map(partner => 
-        this.partnersService.sendLeadToPartner(partner, lead)
-          .then(success => ({ partner: partner.name, success }))
-          .catch(error => ({ partner: partner.name, success: false, error: error.message }))
+      const promises = partners.map((partner) =>
+        this.partnersService
+          .sendLeadToPartner(partner, lead)
+          .then((success) => ({ partner: partner.name, success }))
+          .catch((error) => ({
+            partner: partner.name,
+            success: false,
+            error: error.message,
+          })),
       );
 
       const results = await Promise.allSettled(promises);
-      
+
       // Log results
       results.forEach((result, index) => {
         if (result.status === 'fulfilled') {
           const { partner, success } = result.value;
           if (success) {
-            this.logger.log(`Successfully sent lead ${lead.id} to partner: ${partner}`);
+            this.logger.log(
+              `Successfully sent lead ${lead.id} to partner: ${partner}`,
+            );
           } else {
-            this.logger.error(`Failed to send lead ${lead.id} to partner: ${partner}`);
+            this.logger.error(
+              `Failed to send lead ${lead.id} to partner: ${partner}`,
+            );
           }
         } else {
-          this.logger.error(`Error processing partner ${partners[index].name}:`, result.reason);
+          this.logger.error(
+            `Error processing partner ${partners[index].name}:`,
+            result.reason,
+          );
         }
       });
-
     } catch (error) {
       this.logger.error('Error in sendLeadToPartners:', error);
     }

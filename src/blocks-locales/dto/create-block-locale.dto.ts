@@ -6,4 +6,4 @@ export class CreateBlockLocaleDto {
   description?: string;
   meta?: any;
   isActive?: boolean;
-} 
+}

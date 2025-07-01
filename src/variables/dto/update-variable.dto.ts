@@ -3,4 +3,4 @@ import { IsString, IsOptional, IsBoolean } from 'class-validator';
 import { CreateVariableDto } from './create-variable.dto';
 
 @ApiExtraModels()
-export class UpdateVariableDto extends PartialType(CreateVariableDto) {} 
+export class UpdateVariableDto extends PartialType(CreateVariableDto) {}

@@ -7,11 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import { ConfigModule } from '../config/config.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([City]), 
-    AuthModule,
-    ConfigModule,
-  ],
+  imports: [TypeOrmModule.forFeature([City]), AuthModule, ConfigModule],
   controllers: [CitiesController],
   providers: [CitiesService],
   exports: [CitiesService],

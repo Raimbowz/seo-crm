@@ -33,7 +33,7 @@ export class BlocksController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new block' })
-  @Roles(UserRole.ADMIN,UserRole.CREATOR)
+  @Roles(UserRole.ADMIN, UserRole.CREATOR)
   @ApiResponse({
     status: 201,
     description: 'Block created successfully',
@@ -45,7 +45,7 @@ export class BlocksController {
 
   @Get()
   @ApiOperation({ summary: 'Get all blocks' })
-  @Roles(UserRole.ADMIN,UserRole.CREATOR)
+  @Roles(UserRole.ADMIN, UserRole.CREATOR)
   @ApiResponse({ status: 200, description: 'Return all blocks', type: [Block] })
   async findAll(): Promise<Block[]> {
     try {
@@ -58,7 +58,7 @@ export class BlocksController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a block by id' })
-  @Roles(UserRole.ADMIN,UserRole.CREATOR)
+  @Roles(UserRole.ADMIN, UserRole.CREATOR)
   @ApiResponse({ status: 200, description: 'Return the block', type: Block })
   @ApiResponse({ status: 404, description: 'Block not found' })
   findOne(@Param('id') id: string): Promise<Block> {
@@ -67,7 +67,7 @@ export class BlocksController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a block' })
-  @Roles(UserRole.ADMIN,UserRole.CREATOR)
+  @Roles(UserRole.ADMIN, UserRole.CREATOR)
   @ApiResponse({
     status: 200,
     description: 'Block updated successfully',
@@ -83,7 +83,7 @@ export class BlocksController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a block' })
-  @Roles(UserRole.ADMIN,UserRole.CREATOR)
+  @Roles(UserRole.ADMIN, UserRole.CREATOR)
   @ApiResponse({ status: 200, description: 'Block deleted successfully' })
   @ApiResponse({ status: 404, description: 'Block not found' })
   remove(@Param('id') id: string): Promise<void> {

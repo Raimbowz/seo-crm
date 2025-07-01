@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Block } from '../../blocks/entities/block.entity';
 
 @Entity('block_locales')
@@ -27,7 +34,7 @@ export class BlockLocale {
   @Column()
   blockId: number;
 
-  @ManyToOne(() => Block, block => block.locales, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Block, (block) => block.locales, { onDelete: 'CASCADE' })
   block: Block;
 
   @CreateDateColumn()
@@ -35,4 +42,4 @@ export class BlockLocale {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

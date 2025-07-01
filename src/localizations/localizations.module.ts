@@ -10,4 +10,4 @@ import { LocalizationsController } from './localizations.controller';
   controllers: [LocalizationsController],
   exports: [LocalizationsService],
 })
-export class LocalizationsModule {} 
+export class LocalizationsModule {}

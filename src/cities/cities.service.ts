@@ -74,7 +74,9 @@ export class CitiesService {
     await this.citiesRepository.remove(city);
   }
 
-  async updateMany(dtos: Array<{ id: number } & UpdateCityDto>): Promise<City[]> {
+  async updateMany(
+    dtos: Array<{ id: number } & UpdateCityDto>,
+  ): Promise<City[]> {
     const result: City[] = [];
     for (const dto of dtos) {
       const { id, ...updateData } = dto;

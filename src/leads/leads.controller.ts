@@ -47,9 +47,13 @@ export class LeadsController {
     description: 'Lead submitted successfully, redirecting to thank you page.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  async submitForm(@Body() formData: any, @Req() req: Request, @Res() res: Response) {
+  async submitForm(
+    @Body() formData: any,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
     const result = await this.leadsService.submitForm(formData, req);
-    
+
     // Always return JSON response - let frontend handle redirects
     return res.status(HttpStatus.OK).send(result);
   }

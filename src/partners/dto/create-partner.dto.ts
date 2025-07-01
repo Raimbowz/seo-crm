@@ -20,7 +20,10 @@ export class CreatePartnerDto {
   @MaxLength(100)
   name: string;
 
-  @ApiProperty({ example: 'Lead provider for trading platform', description: 'Partner description' })
+  @ApiProperty({
+    example: 'Lead provider for trading platform',
+    description: 'Partner description',
+  })
   @IsString()
   @IsOptional()
   @MaxLength(500)
@@ -55,7 +58,10 @@ export class CreatePartnerDto {
   @IsOptional()
   website?: string;
 
-  @ApiProperty({ example: 'https://api.partner.com/leads', description: 'API endpoint URL for lead submission' })
+  @ApiProperty({
+    example: 'https://api.partner.com/leads',
+    description: 'API endpoint URL for lead submission',
+  })
   @IsUrl()
   @IsNotEmpty()
   apiUrl: string;
@@ -66,17 +72,19 @@ export class CreatePartnerDto {
   @IsOptional()
   apiMethod?: string;
 
-  @ApiProperty({ 
-    example: '{"Authorization": "Bearer token123", "Content-Type": "application/json"}', 
-    description: 'Additional headers for API requests (JSON format)' 
+  @ApiProperty({
+    example:
+      '{"Authorization": "Bearer token123", "Content-Type": "application/json"}',
+    description: 'Additional headers for API requests (JSON format)',
   })
   @IsJSON()
   @IsOptional()
   apiHeaders?: string;
 
-  @ApiProperty({ 
-    example: '{"firstName": "fname", "lastName": "lname", "email": "email", "phone": "profile[phone]"}', 
-    description: 'Field mapping from lead to partner API (JSON format)' 
+  @ApiProperty({
+    example:
+      '{"firstName": "fname", "lastName": "lname", "email": "email", "phone": "profile[phone]"}',
+    description: 'Field mapping from lead to partner API (JSON format)',
   })
   @IsJSON()
   @IsNotEmpty()

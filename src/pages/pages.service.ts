@@ -76,7 +76,9 @@ export class PagesService {
 
     if (updatePageDto.parentId !== undefined) {
       page.parentId = updatePageDto.parentId;
-      page.parent = updatePageDto.parentId ? { id: updatePageDto.parentId } as any : null;
+      page.parent = updatePageDto.parentId
+        ? ({ id: updatePageDto.parentId } as any)
+        : null;
     }
 
     if (updatePageDto.partnerId) {
@@ -89,9 +91,8 @@ export class PagesService {
       page.site = { id: updatePageDto.siteId } as any;
     }
 
- 
-    let res = await this.pageRepository.save(page);
-    console.log('res:', res)
+    const res = await this.pageRepository.save(page);
+    console.log('res:', res);
     return res;
   }
 
@@ -105,7 +106,7 @@ export class PagesService {
     return this.pageRepository.find({
       where: [
         { site: { id: siteId } }, // Страницы этого сайта
-        { isGlobal: true }         // Глобальные страницы
+        { isGlobal: true }, // Глобальные страницы
       ],
       relations: ['template'],
     });
@@ -115,13 +116,13 @@ export class PagesService {
     return this.pageRepository.findOne({
       where: [
         { siteId: siteId, isThankYouPage: true, isActive: true },
-        { isGlobal: true, isThankYouPage: true, isActive: true }
+        { isGlobal: true, isThankYouPage: true, isActive: true },
       ],
       relations: ['template'],
       order: {
         isGlobal: 'ASC', // Prefer site-specific over global
-        id: 'ASC'
-      }
+        id: 'ASC',
+      },
     });
   }
 }

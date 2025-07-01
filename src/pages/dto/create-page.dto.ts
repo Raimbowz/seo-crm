@@ -48,7 +48,10 @@ export class CreatePageDto {
   @IsOptional()
   cityId: number;
 
-  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'Template ID' })
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'Template ID',
+  })
   @IsUUID()
   @IsNotEmpty()
   templateId: string;
@@ -75,24 +78,38 @@ export class CreatePageDto {
   @IsOptional()
   isActive?: boolean;
 
- 
-
-  @ApiProperty({ example: true, description: 'Whether the page is main', required: false })
+  @ApiProperty({
+    example: true,
+    description: 'Whether the page is main',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   isMain?: boolean;
 
-  @ApiProperty({ example: 1, description: 'ID родительской страницы', required: false })
+  @ApiProperty({
+    example: 1,
+    description: 'ID родительской страницы',
+    required: false,
+  })
   @IsOptional()
   @IsInt()
   parentId?: number;
 
-  @ApiProperty({ example: true, description: 'Whether the page is global', required: false })
+  @ApiProperty({
+    example: true,
+    description: 'Whether the page is global',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   isGlobal?: boolean;
 
-  @ApiProperty({ example: false, description: 'Whether the page is a thank you page', required: false })
+  @ApiProperty({
+    example: false,
+    description: 'Whether the page is a thank you page',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   isThankYouPage?: boolean;

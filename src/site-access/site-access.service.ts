@@ -12,11 +12,13 @@ export class SiteAccessService {
     @InjectRepository(SiteAccess)
     private readonly siteAccessRepository: Repository<SiteAccess>,
     private readonly usersProxyService: UsersProxyService,
-  ) {}  
+  ) {}
 
   async create(dto: CreateSiteAccessDto) {
     // Проверка на уникальность пары userId+siteId
-    const exists = await this.siteAccessRepository.findOne({ where: { userId: dto.userId, siteId: dto.siteId } });
+    const exists = await this.siteAccessRepository.findOne({
+      where: { userId: dto.userId, siteId: dto.siteId },
+    });
     if (exists) {
       return exists; // или можно выбросить ошибку, если нужно
     }
@@ -25,13 +27,15 @@ export class SiteAccessService {
   }
 
   async findAll(req: Request) {
-    let sites = await this.siteAccessRepository.find({
+    const sites = await this.siteAccessRepository.find({
       relations: ['site'],
     });
-    let sitesWithPermissions = await Promise.all(sites.map(async (site) => {
-      const user = await this.usersProxyService.findOne(site.userId, req);
-      return { ...site, user: user };
-    }));
+    const sitesWithPermissions = await Promise.all(
+      sites.map(async (site) => {
+        const user = await this.usersProxyService.findOne(site.userId, req);
+        return { ...site, user: user };
+      }),
+    );
     return sitesWithPermissions;
   }
 
@@ -46,4 +50,4 @@ export class SiteAccessService {
   remove(id: number) {
     return this.siteAccessRepository.delete(id);
   }
-} 
+}

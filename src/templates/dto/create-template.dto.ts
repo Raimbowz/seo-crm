@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateTemplateDto {
   @ApiProperty({ description: 'The name of the template' })
@@ -26,13 +32,19 @@ export class CreateTemplateDto {
   @IsNumber()
   siteId: number;
 
-  @ApiProperty({ description: 'Whether the template is active', required: false })
+  @ApiProperty({
+    description: 'Whether the template is active',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
 
-  @ApiProperty({ description: 'Whether the template is global', required: false })
+  @ApiProperty({
+    description: 'Whether the template is global',
+    required: false,
+  })
   @IsBoolean()
   @IsOptional()
   isGlobal?: boolean;
-} 
+}

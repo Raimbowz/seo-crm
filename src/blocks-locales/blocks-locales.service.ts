@@ -33,4 +33,4 @@ export class BlocksLocalesService {
   async remove(id: number) {
     return await this.blockLocaleRepository.delete(id);
   }
-} 
+}

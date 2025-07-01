@@ -17,15 +17,12 @@ import { VariableReplacementService } from '../common/services/variable-replacem
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Site, 
-      SiteAccess
-    ]), 
+    TypeOrmModule.forFeature([Site, SiteAccess]),
     SiteAccessModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
-    }), 
+    }),
     ConfigModule,
     PagesModule,
     TemplatesModule,
@@ -38,4 +35,4 @@ import { VariableReplacementService } from '../common/services/variable-replacem
   controllers: [SitesController],
   exports: [SitesService],
 })
-export class SitesModule {} 
+export class SitesModule {}

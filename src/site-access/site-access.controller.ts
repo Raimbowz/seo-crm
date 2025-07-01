@@ -1,8 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { SiteAccessService } from './site-access.service';
 import { CreateSiteAccessDto } from './dto/create-site-access.dto';
 import { UpdateSiteAccessDto } from './dto/update-site-access.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiCreatedResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../enums/user-roles.enum';
@@ -28,7 +45,7 @@ export class SiteAccessController {
   @ApiOperation({ summary: 'Get all site accesses' })
   @ApiOkResponse({ description: 'List of site accesses' })
   async findAll(@Req() req: Request) {
-    return await this.siteAccessService.findAll(req); 
+    return await this.siteAccessService.findAll(req);
   }
 
   @Get(':id')
@@ -54,4 +71,4 @@ export class SiteAccessController {
   async remove(@Param('id') id: string) {
     return await this.siteAccessService.remove(Number(id));
   }
-} 
+}

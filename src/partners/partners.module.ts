@@ -10,7 +10,7 @@ import { ConfigModule } from '../config/config.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Partner, Site]), 
+    TypeOrmModule.forFeature([Partner, Site]),
     HttpModule,
     AuthModule,
     ConfigModule,

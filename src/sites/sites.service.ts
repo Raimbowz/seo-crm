@@ -39,7 +39,7 @@ export class SitesService {
   async findAllByUser(userId: number, userRole: string) {
     if (userRole === 'creator') return await this.siteRepository.find();
     const access = await this.siteAccessRepository.find({ where: { userId } });
-    const siteIds = access.map(a => a.siteId);
+    const siteIds = access.map((a) => a.siteId);
     if (!siteIds.length) return [];
     return await this.siteRepository.find({ where: { id: In(siteIds) } });
   }
@@ -57,8 +57,11 @@ export class SitesService {
   }
 
   async findOneWithPagesAndTemplatesAndBlocks(id: number | string) {
-    const site = typeof id === 'number' ? await this.siteRepository.findOneBy({ id }) : await this.siteRepository.findOneBy({ domain: id });
-    console.log('site:', site,'id:',id);
+    const site =
+      typeof id === 'number'
+        ? await this.siteRepository.findOneBy({ id })
+        : await this.siteRepository.findOneBy({ domain: id });
+    console.log('site:', site, 'id:', id);
     if (!site) return null;
 
     // Получаем все страницы этого сайта
@@ -81,13 +84,21 @@ export class SitesService {
 
     // Собираем все blockIds по всем страницам/шаблонам
     const allBlockIds: number[] = [];
-    const pageTemplateContents: { pageIdx: number, template: any, content: any }[] = [];
+    const pageTemplateContents: {
+      pageIdx: number;
+      template: any;
+      content: any;
+    }[] = [];
 
     pages.forEach((page, pageIdx) => {
       if (page.template && page.template.content) {
         try {
           const content = JSON.parse(page.template.content);
-          pageTemplateContents.push({ pageIdx, template: page.template, content });
+          pageTemplateContents.push({
+            pageIdx,
+            template: page.template,
+            content,
+          });
           const ids = extractBlockIdsFromContent(content);
           allBlockIds.push(...ids);
         } catch {}
@@ -96,9 +107,11 @@ export class SitesService {
 
     // Получаем все блоки одним запросом
     const uniqueBlockIds = Array.from(new Set(allBlockIds));
-    const blocks = uniqueBlockIds.length ? await this.blocksService.findByIds(uniqueBlockIds) : [];
+    const blocks = uniqueBlockIds.length
+      ? await this.blocksService.findByIds(uniqueBlockIds)
+      : [];
     const blockMap = new Map<number, any>();
-    blocks.forEach(b => blockMap.set(b.id, b));
+    blocks.forEach((b) => blockMap.set(b.id, b));
 
     // Вставляем контент блока в каждый блок шаблона
     for (const { template, content } of pageTemplateContents) {
@@ -113,7 +126,10 @@ export class SitesService {
                     if (!isNaN(id) && blockMap.has(id)) {
                       const blockData = { ...blockMap.get(id) };
                       // Преобразуем blockContent.content в объект, если это строка и это JSON
-                      if (blockData.content && typeof blockData.content === 'string') {
+                      if (
+                        blockData.content &&
+                        typeof blockData.content === 'string'
+                      ) {
                         try {
                           blockData.content = JSON.parse(blockData.content);
                         } catch {}
@@ -139,15 +155,32 @@ export class SitesService {
       // Заменяем переменные во всех строках страницы
       let pageWithVars = parseAllStrings(page, variables, city, site);
       // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
-      pageWithVars = await this.variableReplacementService.replaceVariables(pageWithVars, 'ru-RU', variables);
+      pageWithVars = await this.variableReplacementService.replaceVariables(
+        pageWithVars,
+        'ru-RU',
+        variables,
+      );
       // Заменяем переменные в шаблоне (template.content)
       if (pageWithVars.template && pageWithVars.template.content) {
-        pageWithVars.template.content = replaceVariablesInContent(pageWithVars.template.content, variables, city, site);
+        pageWithVars.template.content = replaceVariablesInContent(
+          pageWithVars.template.content,
+          variables,
+          city,
+          site,
+        );
         // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
-        pageWithVars.template.content = await this.variableReplacementService.replaceVariables(pageWithVars.template.content, 'ru-RU', variables);
+        pageWithVars.template.content =
+          await this.variableReplacementService.replaceVariables(
+            pageWithVars.template.content,
+            'ru-RU',
+            variables,
+          );
       }
       // Заменяем переменные в блоках (blockContent)
-      if (pageWithVars.template && Array.isArray(pageWithVars.template.content)) {
+      if (
+        pageWithVars.template &&
+        Array.isArray(pageWithVars.template.content)
+      ) {
         for (const row of pageWithVars.template.content) {
           if (row.columns && Array.isArray(row.columns)) {
             for (const col of row.columns) {
@@ -155,9 +188,19 @@ export class SitesService {
                 for (const block of col.blocks) {
                   if (block.blockContent) {
                     // Заменяем переменные во всем blockContent, а не только в content
-                    block.blockContent = replaceVariablesInContent(block.blockContent, variables, city, site);
+                    block.blockContent = replaceVariablesInContent(
+                      block.blockContent,
+                      variables,
+                      city,
+                      site,
+                    );
                     // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
-                    block.blockContent = await this.variableReplacementService.replaceVariables(block.blockContent, 'ru-RU', variables);
+                    block.blockContent =
+                      await this.variableReplacementService.replaceVariables(
+                        block.blockContent,
+                        'ru-RU',
+                        variables,
+                      );
                   }
                 }
               }
@@ -171,7 +214,11 @@ export class SitesService {
     // Парсим все строки у сайта
     let siteWithVars = parseAllStrings(site, variables, null, site);
     // Дополнительно обрабатываем системные и пользовательские переменные через новый сервис
-    siteWithVars = await this.variableReplacementService.replaceVariables(siteWithVars, 'ru-RU', variables);
+    siteWithVars = await this.variableReplacementService.replaceVariables(
+      siteWithVars,
+      'ru-RU',
+      variables,
+    );
     siteWithVars.pages = pagesWithTemplates;
     return siteWithVars;
   }
@@ -215,7 +262,12 @@ function extractBlockIdsFromContent(content: any): number[] {
 }
 
 // Рекурсивная функция для замены переменных в любом контенте
-function replaceVariablesInContent(content: any, variables: Record<string, string>, city: any, site?: any): any {
+function replaceVariablesInContent(
+  content: any,
+  variables: Record<string, string>,
+  city: any,
+  site?: any,
+): any {
   if (typeof content === 'string') {
     // Заменяем [*var*] на значения из variables, города и сайта
     return content.replace(/\[\*(.*?)\*\]/g, (match, varName) => {
@@ -225,12 +277,19 @@ function replaceVariablesInContent(content: any, variables: Record<string, strin
       if (city) {
         if (varName.startsWith('city_')) {
           const field =
-            varName === 'city' ? 'name' :
-            varName === 'city_genetive' ? 'nameGenitive' :
-            varName === 'city_dative' ? 'nameDative' :
-            varName === 'city_accusative' ? 'nameAccusative' :
-            varName === 'city_instrumental' ? 'nameInstrumental' :
-            varName === 'city_prepositional' ? 'namePrepositional' : null;
+            varName === 'city'
+              ? 'name'
+              : varName === 'city_genetive'
+                ? 'nameGenitive'
+                : varName === 'city_dative'
+                  ? 'nameDative'
+                  : varName === 'city_accusative'
+                    ? 'nameAccusative'
+                    : varName === 'city_instrumental'
+                      ? 'nameInstrumental'
+                      : varName === 'city_prepositional'
+                        ? 'namePrepositional'
+                        : null;
           if (field && city[field]) return city[field];
         }
       }
@@ -241,11 +300,18 @@ function replaceVariablesInContent(content: any, variables: Record<string, strin
       return match; // если не нашли — не заменяем
     });
   } else if (Array.isArray(content)) {
-    return content.map(item => replaceVariablesInContent(item, variables, city, site));
+    return content.map((item) =>
+      replaceVariablesInContent(item, variables, city, site),
+    );
   } else if (typeof content === 'object' && content !== null) {
     const result: any = {};
     for (const key of Object.keys(content)) {
-      result[key] = replaceVariablesInContent(content[key], variables, city, site);
+      result[key] = replaceVariablesInContent(
+        content[key],
+        variables,
+        city,
+        site,
+      );
     }
     return result;
   }
@@ -253,11 +319,16 @@ function replaceVariablesInContent(content: any, variables: Record<string, strin
 }
 
 // Рекурсивно парсит все строки в объекте через replaceVariablesInContent
-function parseAllStrings(obj: any, variables: Record<string, string>, city: any, site: any): any {
+function parseAllStrings(
+  obj: any,
+  variables: Record<string, string>,
+  city: any,
+  site: any,
+): any {
   if (typeof obj === 'string') {
     return replaceVariablesInContent(obj, variables, city, site);
   } else if (Array.isArray(obj)) {
-    return obj.map(item => parseAllStrings(item, variables, city, site));
+    return obj.map((item) => parseAllStrings(item, variables, city, site));
   } else if (typeof obj === 'object' && obj !== null) {
     const result: any = {};
     for (const key of Object.keys(obj)) {
@@ -266,4 +337,4 @@ function parseAllStrings(obj: any, variables: Record<string, string>, city: any,
     return result;
   }
   return obj;
-} 
+}

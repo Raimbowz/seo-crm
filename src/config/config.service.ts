@@ -56,8 +56,6 @@ export class AppConfigService {
     return this.configService.get<string>('DB_NAME', 'seo_crm_backend');
   }
 
-  
-
   get dbSynchronize(): boolean {
     return this.configService.get<boolean>('DB_SYNCHRONIZE', true);
   }

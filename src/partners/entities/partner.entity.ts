@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToMany, JoinTable, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  JoinTable,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Site } from '../../sites/entities/site.entity';
 
 @Entity('partners')
@@ -12,7 +18,10 @@ export class Partner {
   @Column()
   name: string;
 
-  @ApiProperty({ example: 'Lead provider for trading platform', description: 'Partner description' })
+  @ApiProperty({
+    example: 'Lead provider for trading platform',
+    description: 'Partner description',
+  })
   @Column({ nullable: true })
   description: string;
 
@@ -39,7 +48,10 @@ export class Partner {
   @Column({ nullable: true })
   website: string;
 
-  @ApiProperty({ example: 'https://api.partner.com/leads', description: 'API endpoint URL for lead submission' })
+  @ApiProperty({
+    example: 'https://api.partner.com/leads',
+    description: 'API endpoint URL for lead submission',
+  })
   @Column()
   apiUrl: string;
 
@@ -47,16 +59,18 @@ export class Partner {
   @Column({ default: 'POST' })
   apiMethod: string;
 
-  @ApiProperty({ 
-    example: '{"Authorization": "Bearer token123", "Content-Type": "application/json"}', 
-    description: 'Additional headers for API requests (JSON format)' 
+  @ApiProperty({
+    example:
+      '{"Authorization": "Bearer token123", "Content-Type": "application/json"}',
+    description: 'Additional headers for API requests (JSON format)',
   })
   @Column({ type: 'text', nullable: true })
   apiHeaders: string;
 
-  @ApiProperty({ 
-    example: '{"firstName": "fname", "lastName": "lname", "email": "email", "phone": "profile[phone]"}', 
-    description: 'Field mapping from lead to partner API (JSON format)' 
+  @ApiProperty({
+    example:
+      '{"firstName": "fname", "lastName": "lname", "email": "email", "phone": "profile[phone]"}',
+    description: 'Field mapping from lead to partner API (JSON format)',
   })
   @Column({ type: 'text' })
   fieldMapping: string;
