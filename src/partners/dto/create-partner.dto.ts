@@ -30,22 +30,18 @@ export class CreatePartnerDto {
   description?: string;
 
   @ApiProperty({ example: 'John Doe', description: 'Partner contact person' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
+ 
   contactPerson: string;
 
   @ApiProperty({
     example: 'john@acme.com',
     description: 'Partner email address',
   })
-  @IsEmail()
-  @IsNotEmpty()
+ 
   email: string;
 
   @ApiProperty({ example: '+1234567890', description: 'Partner phone number' })
-  @IsString()
-  @IsNotEmpty()
+ 
   @MaxLength(20)
   phone: string;
 
@@ -54,16 +50,13 @@ export class CreatePartnerDto {
     description: 'Partner website URL',
     required: false,
   })
-  @IsUrl()
-  @IsOptional()
+ 
   website?: string;
 
   @ApiProperty({
     example: 'https://api.partner.com/leads',
     description: 'API endpoint URL for lead submission',
   })
-  @IsUrl()
-  @IsNotEmpty()
   apiUrl: string;
 
   @ApiProperty({ example: 'POST', description: 'HTTP method for API requests' })
