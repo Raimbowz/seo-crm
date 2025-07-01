@@ -62,6 +62,8 @@ export class CreatePartnerDto {
     example: 'https://api.partner.com/leads',
     description: 'API endpoint URL for lead submission',
   })
+  @IsUrl()
+  @IsNotEmpty()
   apiUrl: string;
 
   @ApiProperty({ example: 'POST', description: 'HTTP method for API requests' })
