@@ -8,6 +8,7 @@ import { AuthModule } from '../auth/auth.module';
 import { ConfigModule } from '../config/config.module';
 import { PagesModule } from '../pages/pages.module';
 import { PartnersModule } from '../partners/partners.module';
+import { LeadQueueModule } from '../lead-queue/lead-queue.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PartnersModule } from '../partners/partners.module';
     ConfigModule,
     PagesModule,
     PartnersModule,
+    LeadQueueModule,
   ],
   controllers: [LeadsController],
   providers: [LeadsService],

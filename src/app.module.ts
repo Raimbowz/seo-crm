@@ -16,11 +16,14 @@ import { SitesModule } from './sites/sites.module';
 import { SiteAccessModule } from './site-access/site-access.module';
 import { LocalizationsModule } from './localizations/localizations.module';
 import { UsersProxyModule } from './users-proxy/users-proxy.module';
+import { LeadQueueModule } from './lead-queue/lead-queue.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule,
     DatabaseModule,
+    ScheduleModule.forRoot(),
     AuthModule,
     CitiesModule,
     BlocksModule,
@@ -34,6 +37,7 @@ import { UsersProxyModule } from './users-proxy/users-proxy.module';
     SiteAccessModule,
     LocalizationsModule,
     UsersProxyModule,
+    LeadQueueModule,
   ],
   controllers: [AppController],
   providers: [AppService],

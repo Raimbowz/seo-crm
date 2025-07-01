@@ -13,6 +13,13 @@ import { Site } from '../sites/entities/site.entity';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 
+interface FieldMapping {
+  type: 'field' | 'constant';
+  localField?: string;
+  constantValue?: any;
+  partnerField: string;
+}
+
 @Injectable()
 export class PartnersService {
   private readonly logger = new Logger(PartnersService.name);
@@ -162,19 +169,41 @@ export class PartnersService {
       // Map lead data to partner format
       const mappedData: any = {};
 
-      for (const [leadField, partnerFieldValue] of Object.entries(
-        fieldMapping,
-      )) {
-        const partnerField = String(partnerFieldValue);
-        let value = leadData[leadField];
+      for (const [key, mapping] of Object.entries(fieldMapping)) {
+        // Handle both new format (with type/constantValue) and legacy format
+        let partnerField: string;
+        let value: any;
 
-        // Handle nested fields like formData.firstName
-        if (!value && leadData.formData && leadData.formData[leadField]) {
-          value = leadData.formData[leadField];
+        if (typeof mapping === 'object' && mapping !== null && (mapping as FieldMapping).type) {
+          // New format with type/constantValue support
+          const typedMapping = mapping as FieldMapping;
+          partnerField = typedMapping.partnerField;
+          
+          if (typedMapping.type === 'constant') {
+            // Use constant value
+            value = typedMapping.constantValue;
+          } else {
+            // Use field mapping
+            value = typedMapping.localField ? leadData[typedMapping.localField] : null;
+            
+            // Handle nested fields like formData.firstName
+            if (!value && leadData.formData && typedMapping.localField && leadData.formData[typedMapping.localField]) {
+              value = leadData.formData[typedMapping.localField];
+            }
+          }
+        } else {
+          // Legacy format - simple localField -> partnerField mapping
+          partnerField = String(mapping);
+          value = leadData[key];
+          
+          // Handle nested fields like formData.firstName
+          if (!value && leadData.formData && leadData.formData[key]) {
+            value = leadData.formData[key];
+          }
         }
 
-        if (value !== undefined && value !== null) {
-          // Handle nested partner fields like profile[phone]
+        if (value !== undefined && value !== null && value !== '') {
+          // Handle nested partner fields like profile[phone] or data.email
           if (partnerField.includes('[') && partnerField.includes(']')) {
             const matches = partnerField.match(/^([^[]+)\[([^\]]+)\]$/);
             if (matches) {
@@ -186,6 +215,12 @@ export class PartnersService {
             } else {
               mappedData[partnerField] = value;
             }
+          } else if (partnerField.includes('.')) {
+            const [parentKey, childKey] = partnerField.split('.');
+            if (!mappedData[parentKey]) {
+              mappedData[parentKey] = {};
+            }
+            mappedData[parentKey][childKey] = value;
           } else {
             mappedData[partnerField] = value;
           }

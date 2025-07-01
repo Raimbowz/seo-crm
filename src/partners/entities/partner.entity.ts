@@ -80,6 +80,14 @@ export class Partner {
   isActive: boolean;
 
   @ApiProperty({
+    example: 300,
+    description: 'Delay in seconds before sending lead to partner (0 = immediate)',
+    default: 0,
+  })
+  @Column({ default: 0 })
+  delaySeconds: number;
+
+  @ApiProperty({
     example: '2023-05-15T10:30:00Z',
     description: 'Date when the partner was created',
   })
