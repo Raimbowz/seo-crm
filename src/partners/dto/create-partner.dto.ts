@@ -108,4 +108,13 @@ export class CreatePartnerDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @ApiProperty({
+    example: 300,
+    description: 'Delay in seconds before sending lead to partner (0 = immediate)',
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  delaySeconds?: number;
 }
