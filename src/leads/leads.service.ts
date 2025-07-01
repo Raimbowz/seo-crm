@@ -78,18 +78,8 @@ export class LeadsService {
       // Extract IP address from request
       const ip = this.extractClientIP(req);
 
-      // Get geolocation data
-      let countryCode = '';
-      try {
-        if (ip) {
-          const response = await axios.get(
-            `https://vanadotrade.com/lead/api/ip?ip=${ip}`,
-          );
-          countryCode = response.data.geo?.country_code || '';
-        }
-      } catch (error) {
-        console.warn('Failed to get IP geolocation:', error.message);
-      }
+      // Use country code from form data
+      const countryCode = formData.country_code || formData.countryCode || '';
 
       // Determine siteId from domain
       let siteId: number | null = null;
