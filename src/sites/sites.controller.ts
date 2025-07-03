@@ -12,6 +12,7 @@ import {
 import { SitesService } from './sites.service';
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
+import { CloneSiteDto } from './dto/clone-site.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -88,5 +89,15 @@ export class SitesController {
   @ApiOkResponse({ description: 'Сайт удален' })
   async remove(@Param('id') id: string) {
     return await this.sitesService.remove(Number(id));
+  }
+
+  @Post(':id/clone')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.CREATOR)
+  @ApiOperation({ summary: 'Клонировать сайт со всеми страницами, блоками и настройками' })
+  @ApiCreatedResponse({ description: 'Сайт клонирован' })
+  async clone(@Param('id') id: string, @Body() dto: CloneSiteDto, @Req() req) {
+    const user = req.user;
+    return await this.sitesService.clone(Number(id), dto, user.id);
   }
 }

@@ -4,6 +4,7 @@ import { Repository, In } from 'typeorm';
 import { Site } from './entities/site.entity';
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
+import { CloneSiteDto } from './dto/clone-site.dto';
 import { SiteAccess } from '../site-access/entities/site-access.entity';
 import { PagesService } from '../pages/pages.service';
 import { TemplatesService } from '../templates/templates.service';
@@ -11,6 +12,7 @@ import { BlocksService } from '../blocks/blocks.service';
 import { VariablesService } from '../variables/variables.service';
 import { CitiesService } from '../cities/cities.service';
 import { VariableReplacementService } from '../common/services/variable-replacement.service';
+import { ImagesService } from '../images/images.service';
 
 @Injectable()
 export class SitesService {
@@ -25,6 +27,7 @@ export class SitesService {
     private readonly variablesService: VariablesService,
     private readonly citiesService: CitiesService,
     private readonly variableReplacementService: VariableReplacementService,
+    private readonly imagesService: ImagesService,
   ) {}
 
   async create(dto: CreateSiteDto) {
@@ -54,6 +57,168 @@ export class SitesService {
 
   async remove(id: number) {
     return await this.siteRepository.delete(id);
+  }
+
+  async clone(id: number, dto: CloneSiteDto, userId: number) {
+    // Получаем исходный сайт со всеми данными
+    const originalSite = await this.siteRepository.findOneBy({ id });
+    if (!originalSite) {
+      throw new Error('Site not found');
+    }
+
+    // Создаем новый сайт
+    const currentDate = new Date().toISOString().split('T')[0];
+    const newSite = this.siteRepository.create({
+      ...originalSite,
+      id: undefined,
+      name: dto.name,
+      url: dto.url,
+      domain: dto.domain,
+      description: dto.description || `${originalSite.description} - Копия от ${currentDate}`,
+      ownerId: userId,
+      createdAt: undefined,
+      updatedAt: undefined,
+    });
+
+    const savedSite = await this.siteRepository.save(newSite);
+
+    // Копируем переменные сайта
+    if (dto.copyVariables !== false) {
+      const siteVariables = await this.variablesService.findBySiteId(id);
+      for (const variable of siteVariables) {
+        await this.variablesService.create({
+          key: variable.key,
+          value: variable.value,
+          description: variable.description,
+          siteId: savedSite.id,
+          isActive: variable.isActive,
+        });
+      }
+    }
+
+    // Копируем изображения (только записи в БД, не глобальные)
+    if (dto.copyImages !== false) {
+      const siteImages = await this.imagesService.findBySiteId(id);
+      for (const image of siteImages) {
+        if (!image.isGlobal) {
+          await this.imagesService.create({
+            name: `${image.name} - Копия ${currentDate}`,
+            link: image.link,
+            group: image.group,
+            userId: userId,
+            siteId: savedSite.id,
+            isGlobal: false,
+            isPublic: image.isPublic,
+            isActive: image.isActive,
+          });
+        }
+      }
+    }
+
+    // Получаем все страницы исходного сайта
+    const originalPages = await this.pagesService.findBySiteId(id);
+    const pageMapping = new Map<number, number>(); // старый ID -> новый ID
+    
+    // Копируем страницы
+    for (const originalPage of originalPages) {
+      const newPage = await this.pagesService.create({
+        ...originalPage,
+        id: undefined,
+        siteId: savedSite.id,
+        name: originalPage.name,
+        slug: originalPage.slug,
+        metaTitle: originalPage.metaTitle,
+        metaDescription: originalPage.metaDescription,
+        templateId: undefined, // будет установлен позже
+        createdAt: undefined,
+        updatedAt: undefined,
+      });
+      pageMapping.set(originalPage.id, newPage.id);
+    }
+
+    // Копируем шаблоны и блоки
+    const blockMapping = new Map<number, number>(); // старый ID -> новый ID
+    
+    for (const originalPage of originalPages) {
+      if (originalPage.template) {
+        // Копируем все блоки из шаблона
+        const templateContent = JSON.parse(originalPage.template.content || '[]');
+        const blockIds = extractBlockIdsFromContent(templateContent);
+        
+        for (const blockId of blockIds) {
+          if (!blockMapping.has(blockId)) {
+            const originalBlock = await this.blocksService.findOne(blockId);
+            if (originalBlock && (dto.copyGlobalBlocks !== false || !originalBlock.isGlobal)) {
+              const newBlock = await this.blocksService.create({
+                ...originalBlock,
+                id: undefined,
+                name: `${originalBlock.name} - Копия ${currentDate}`,
+                isGlobal: false, // копии блоков не глобальные
+                createdAt: undefined,
+                updatedAt: undefined,
+              });
+              blockMapping.set(blockId, newBlock.id);
+            }
+          }
+        }
+
+        // Обновляем content шаблона с новыми ID блоков
+        const updatedContent = this.updateBlockIdsInContent(templateContent, blockMapping);
+        
+        // Создаем новый шаблон
+        const newTemplate = await this.templatesService.create({
+          ...originalPage.template,
+          id: undefined,
+          name: `${originalPage.template.name} - Копия ${currentDate}`,
+          content: JSON.stringify(updatedContent),
+          createdAt: undefined,
+          updatedAt: undefined,
+        });
+
+        // Обновляем страницу с новым шаблоном
+        const newPageId = pageMapping.get(originalPage.id);
+        if (newPageId) {
+          await this.pagesService.update(newPageId, {
+            templateId: newTemplate.id,
+          });
+        }
+      }
+    }
+
+    return savedSite;
+  }
+
+  private updateBlockIdsInContent(content: any, blockMapping: Map<number, number>): any {
+    if (Array.isArray(content)) {
+      return content.map(row => {
+        if (row.columns && Array.isArray(row.columns)) {
+          return {
+            ...row,
+            columns: row.columns.map(col => {
+              if (col.blocks && Array.isArray(col.blocks)) {
+                return {
+                  ...col,
+                  blocks: col.blocks.map(block => {
+                    if (block.value) {
+                      const oldId = Number(block.value);
+                      const newId = blockMapping.get(oldId);
+                      return {
+                        ...block,
+                        value: newId ? newId.toString() : block.value,
+                      };
+                    }
+                    return block;
+                  }),
+                };
+              }
+              return col;
+            }),
+          };
+        }
+        return row;
+      });
+    }
+    return content;
   }
 
   async findOneWithPagesAndTemplatesAndBlocks(id: number | string) {
