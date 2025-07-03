@@ -27,7 +27,7 @@ export class CloneSiteDto {
   @ApiProperty({ example: 'mysite-copy.com', description: 'New domain' })
   @IsString()
   @IsNotEmpty()
-  @Matches(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+  @Matches(/^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$/)
   domain: string;
 
   @ApiProperty({

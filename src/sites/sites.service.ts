@@ -60,135 +60,144 @@ export class SitesService {
   }
 
   async clone(id: number, dto: CloneSiteDto, userId: number) {
-    // Получаем исходный сайт со всеми данными
-    const originalSite = await this.siteRepository.findOneBy({ id });
-    if (!originalSite) {
-      throw new Error('Site not found');
-    }
-
-    // Создаем новый сайт
-    const currentDate = new Date().toISOString().split('T')[0];
-    const newSite = this.siteRepository.create({
-      ...originalSite,
-      id: undefined,
-      name: dto.name,
-      url: dto.url,
-      domain: dto.domain,
-      description: dto.description || `${originalSite.description} - Копия от ${currentDate}`,
-      ownerId: userId,
-      createdAt: undefined,
-      updatedAt: undefined,
-    });
-
-    const savedSite = await this.siteRepository.save(newSite);
-
-    // Копируем переменные сайта
-    if (dto.copyVariables !== false) {
-      const siteVariables = await this.variablesService.findBySiteId(id);
-      for (const variable of siteVariables) {
-        await this.variablesService.createVariable({
-          name: variable.name,
-          key: variable.key,
-          value: variable.value,
-          comment: variable.comment,
-          siteId: savedSite.id,
-          isActive: variable.isActive,
-        });
+    try {
+      console.log('Starting site clone:', { id, dto, userId });
+      
+      // Получаем исходный сайт со всеми данными
+      const originalSite = await this.siteRepository.findOneBy({ id });
+      if (!originalSite) {
+        throw new Error('Site not found');
       }
-    }
 
-    // Копируем изображения (только записи в БД, не глобальные)
-    if (dto.copyImages !== false) {
-      const siteImages = await this.imagesService.findAll(id, false);
-      for (const image of siteImages) {
-        if (!image.isGlobal) {
-          await this.imagesService.create({
-            name: `${image.name} - Копия ${currentDate}`,
-            link: image.link,
-            group: image.group,
-            userId: userId,
+      // Создаем новый сайт
+      const currentDate = new Date().toISOString().split('T')[0];
+      const newSite = this.siteRepository.create({
+        ...originalSite,
+        id: undefined,
+        name: dto.name,
+        url: dto.url,
+        domain: dto.domain,
+        description: dto.description || `${originalSite.description} - Копия от ${currentDate}`,
+        ownerId: userId,
+        createdAt: undefined,
+        updatedAt: undefined,
+      });
+
+      const savedSite = await this.siteRepository.save(newSite);
+
+      // Копируем переменные сайта
+      if (dto.copyVariables !== false) {
+        const siteVariables = await this.variablesService.findBySiteId(id);
+        for (const variable of siteVariables) {
+          // Делаем ключ уникальным добавляя дату для избежания конфликтов
+          const uniqueKey = `${variable.key}_copy_${currentDate.replace(/-/g, '')}`;
+          await this.variablesService.createVariable({
+            name: variable.name,
+            key: uniqueKey,
+            value: variable.value,
+            comment: variable.comment,
             siteId: savedSite.id,
-            isGlobal: false,
-            isPublic: image.isPublic,
-            isActive: image.isActive,
+            isActive: variable.isActive,
           });
         }
       }
-    }
 
-    // Получаем все страницы исходного сайта
-    const originalPages = await this.pagesService.findBySiteId(id);
-    const pageMapping = new Map<number, number>(); // старый ID -> новый ID
-    
-    // Копируем страницы
-    for (const originalPage of originalPages) {
-      const newPage = await this.pagesService.create({
-        title: originalPage.title,
-        slug: `${originalPage.slug}-copy-${currentDate}`,
-        metaDescription: originalPage.metaDescription,
-        metaKeywords: originalPage.metaKeywords,
-        cityId: originalPage.cityId,
-        siteId: savedSite.id,
-        templateId: 'temp', // временный ID, будет обновлен позже
-        partnerId: originalPage.partnerId,
-        isActive: originalPage.isActive,
-        isMain: false, // копии не могут быть главными страницами
-        parentId: originalPage.parentId,
-        isGlobal: false,
-        isThankYouPage: originalPage.isThankYouPage,
-      });
-      pageMapping.set(originalPage.id, newPage.id);
-    }
-
-    // Копируем шаблоны и блоки
-    const blockMapping = new Map<number, number>(); // старый ID -> новый ID
-    
-    for (const originalPage of originalPages) {
-      if (originalPage.template) {
-        // Копируем все блоки из шаблона
-        const templateContent = JSON.parse(originalPage.template.content || '[]');
-        const blockIds = extractBlockIdsFromContent(templateContent);
-        
-        for (const blockId of blockIds) {
-          if (!blockMapping.has(blockId)) {
-            const originalBlock = await this.blocksService.findOne(blockId);
-            if (originalBlock && (dto.copyGlobalBlocks !== false || !originalBlock.isGlobal)) {
-              const newBlock = await this.blocksService.create({
-                name: `${originalBlock.name} - Копия ${currentDate}`,
-                type: originalBlock.type,
-                content: originalBlock.content,
-                isGlobal: false, // копии блоков не глобальные
-              });
-              blockMapping.set(blockId, newBlock.id);
-            }
+      // Копируем изображения (только записи в БД, не глобальные)
+      if (dto.copyImages !== false) {
+        const siteImages = await this.imagesService.findAll(id, false);
+        for (const image of siteImages) {
+          if (!image.isGlobal) {
+            await this.imagesService.create({
+              name: `${image.name} - Копия ${currentDate}`,
+              link: image.link,
+              group: image.group,
+              userId: userId,
+              siteId: savedSite.id,
+              isGlobal: false,
+              isPublic: image.isPublic,
+              isActive: image.isActive,
+            });
           }
         }
+      }
 
-        // Обновляем content шаблона с новыми ID блоков
-        const updatedContent = this.updateBlockIdsInContent(templateContent, blockMapping);
-        
-        // Создаем новый шаблон
-        const newTemplate = await this.templatesService.create({
-          name: `${originalPage.template.name} - Копия ${currentDate}`,
-          description: originalPage.template.description,
-          content: JSON.stringify(updatedContent),
-          type: originalPage.template.type,
+      // Получаем все страницы исходного сайта
+      const originalPages = await this.pagesService.findBySiteId(id);
+      const pageMapping = new Map<number, number>(); // старый ID -> новый ID
+      
+      // Копируем страницы
+      for (const originalPage of originalPages) {
+        const newPage = await this.pagesService.create({
+          title: originalPage.title,
+          slug: `${originalPage.slug}-copy-${currentDate}`,
+          metaDescription: originalPage.metaDescription,
+          metaKeywords: originalPage.metaKeywords,
+          cityId: originalPage.cityId,
           siteId: savedSite.id,
-          isActive: originalPage.template.isActive,
-          isGlobal: false, // копии шаблонов не глобальные
+          templateId: 'temp', // временный ID, будет обновлен позже
+          partnerId: originalPage.partnerId,
+          isActive: originalPage.isActive,
+          isMain: false, // копии не могут быть главными страницами
+          parentId: originalPage.parentId,
+          isGlobal: false,
+          isThankYouPage: originalPage.isThankYouPage,
         });
+        pageMapping.set(originalPage.id, newPage.id);
+      }
 
-        // Обновляем страницу с новым шаблоном
-        const newPageId = pageMapping.get(originalPage.id);
-        if (newPageId) {
-          await this.pagesService.update(newPageId, {
-            templateId: newTemplate.id,
+      // Копируем шаблоны и блоки
+      const blockMapping = new Map<number, number>(); // старый ID -> новый ID
+      
+      for (const originalPage of originalPages) {
+        if (originalPage.template) {
+          // Копируем все блоки из шаблона
+          const templateContent = JSON.parse(originalPage.template.content || '[]');
+          const blockIds = extractBlockIdsFromContent(templateContent);
+          
+          for (const blockId of blockIds) {
+            if (!blockMapping.has(blockId)) {
+              const originalBlock = await this.blocksService.findOne(blockId);
+              if (originalBlock) {
+                const newBlock = await this.blocksService.create({
+                  name: `${originalBlock.name} - Копия ${currentDate}`,
+                  type: originalBlock.type,
+                  content: originalBlock.content,
+                  isGlobal: false, // копии блоков не глобальные
+                });
+                blockMapping.set(blockId, newBlock.id);
+              }
+            }
+          }
+
+          // Обновляем content шаблона с новыми ID блоков
+          const updatedContent = this.updateBlockIdsInContent(templateContent, blockMapping);
+          
+          // Создаем новый шаблон
+          const newTemplate = await this.templatesService.create({
+            name: `${originalPage.template.name} - Копия ${currentDate}`,
+            description: originalPage.template.description,
+            content: JSON.stringify(updatedContent),
+            type: originalPage.template.type,
+            siteId: savedSite.id,
+            isActive: originalPage.template.isActive,
+            isGlobal: false, // копии шаблонов не глобальные
           });
+
+          // Обновляем страницу с новым шаблоном
+          const newPageId = pageMapping.get(originalPage.id);
+          if (newPageId) {
+            await this.pagesService.update(newPageId, {
+              templateId: newTemplate.id,
+            });
+          }
         }
       }
-    }
 
-    return savedSite;
+      return savedSite;
+    } catch (error) {
+      console.error('Clone site error:', error);
+      throw error;
+    }
   }
 
   private updateBlockIdsInContent(content: any, blockMapping: Map<number, number>): any {

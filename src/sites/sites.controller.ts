@@ -97,7 +97,12 @@ export class SitesController {
   @ApiOperation({ summary: 'Клонировать сайт со всеми страницами, блоками и настройками' })
   @ApiCreatedResponse({ description: 'Сайт клонирован' })
   async clone(@Param('id') id: string, @Body() dto: CloneSiteDto, @Req() req) {
-    const user = req.user;
-    return await this.sitesService.clone(Number(id), dto, user.id);
+    try {
+      const user = req.user;
+      return await this.sitesService.clone(Number(id), dto, user.id);
+    } catch (error) {
+      console.error('Clone site error:', error);
+      throw error;
+    }
   }
 }
