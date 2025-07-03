@@ -59,76 +59,48 @@ export class SitesService {
     try {
       console.log(`Starting site deletion for ID: ${id}`);
       
-      // Удаляем все связанные переменные сайта
-      const siteVariables = await this.variablesService.findBySiteId(id);
+      // Удаляем все связанные переменные сайта напрямую через repository
+      const variablesDeleted = await this.variablesService.getAllVariables();
+      const siteVariables = variablesDeleted.filter(v => v.siteId === id);
       console.log(`Found ${siteVariables.length} variables to delete`);
       
-      for (const variable of siteVariables) {
-        await this.variablesService.deleteVariable(variable.id);
+      if (siteVariables.length > 0) {
+        // Удаляем переменные напрямую через SQL
+        await this.siteRepository.manager.query(
+          'DELETE FROM variables WHERE "siteId" = $1',
+          [id]
+        );
+        console.log(`Deleted ${siteVariables.length} variables`);
       }
       
-      // Удаляем все связанные изображения сайта
-      const siteImages = await this.imagesService.findAll(id, false);
-      console.log(`Found ${siteImages.length} images to delete`);
+      // Удаляем связанные данные напрямую через SQL для надежности
+      console.log('Deleting related data via SQL...');
       
-      for (const image of siteImages) {
-        if (!image.isGlobal) {
-          await this.imagesService.remove(image.id);
-        }
-      }
+      // Удаляем изображения сайта (не глобальные)
+      await this.siteRepository.manager.query(
+        'DELETE FROM images WHERE "siteId" = $1 AND "isGlobal" = false',
+        [id]
+      );
       
-      // Получаем все страницы для удаления связанных шаблонов и блоков
-      const pages = await this.pagesService.findBySiteId(id);
-      console.log(`Found ${pages.length} pages to process`);
+      // Удаляем страницы сайта
+      await this.siteRepository.manager.query(
+        'DELETE FROM pages WHERE "siteId" = $1',
+        [id]
+      );
       
-      const templateIds = new Set<string>();
-      const blockIds = new Set<number>();
+      // Удаляем блоки сайта (не глобальные)
+      await this.siteRepository.manager.query(
+        'DELETE FROM blocks WHERE "siteId" = $1 AND "isGlobal" = false',
+        [id]
+      );
       
-      // Собираем ID шаблонов и блоков
-      for (const page of pages) {
-        if (page.templateId) {
-          templateIds.add(page.templateId);
-        }
-        
-        if (page.template?.content) {
-          try {
-            const content = JSON.parse(page.template.content);
-            const pageBlockIds = extractBlockIdsFromContent(content);
-            pageBlockIds.forEach(blockId => blockIds.add(blockId));
-          } catch (error) {
-            console.warn(`Failed to parse template content for page ${page.id}:`, error);
-          }
-        }
-      }
+      // Удаляем шаблоны сайта (не глобальные)
+      await this.siteRepository.manager.query(
+        'DELETE FROM templates WHERE "siteId" = $1 AND "isGlobal" = false',
+        [id]
+      );
       
-      // Удаляем страницы
-      for (const page of pages) {
-        await this.pagesService.remove(page.id);
-      }
-      
-      // Удаляем блоки (только те, что принадлежат этому сайту)
-      for (const blockId of blockIds) {
-        try {
-          const block = await this.blocksService.findOne(blockId);
-          if (block && block.siteId === id) {
-            await this.blocksService.remove(blockId);
-          }
-        } catch (error) {
-          console.warn(`Failed to delete block ${blockId}:`, error);
-        }
-      }
-      
-      // Удаляем шаблоны (только те, что принадлежат этому сайту)
-      for (const templateId of templateIds) {
-        try {
-          const template = await this.templatesService.findOne(templateId);
-          if (template && template.siteId === id) {
-            await this.templatesService.remove(templateId);
-          }
-        } catch (error) {
-          console.warn(`Failed to delete template ${templateId}:`, error);
-        }
-      }
+      console.log('Related data deleted successfully');
       
       // Наконец удаляем сам сайт
       const result = await this.siteRepository.delete(id);
