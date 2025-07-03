@@ -123,33 +123,12 @@ export class SitesService {
 
       // Получаем все страницы исходного сайта
       const originalPages = await this.pagesService.findBySiteId(id);
-      const pageMapping = new Map<number, number>(); // старый ID -> новый ID
-      
-      // Копируем страницы
-      for (const originalPage of originalPages) {
-        const newPage = await this.pagesService.create({
-          title: originalPage.title,
-          slug: `${originalPage.slug}-copy-${currentDate}`,
-          metaDescription: originalPage.metaDescription,
-          metaKeywords: originalPage.metaKeywords,
-          cityId: originalPage.cityId,
-          siteId: savedSite.id,
-          templateId: 'temp', // временный ID, будет обновлен позже
-          partnerId: originalPage.partnerId,
-          isActive: originalPage.isActive,
-          isMain: false, // копии не могут быть главными страницами
-          parentId: originalPage.parentId,
-          isGlobal: false,
-          isThankYouPage: originalPage.isThankYouPage,
-        });
-        pageMapping.set(originalPage.id, newPage.id);
-      }
-
-      // Копируем шаблоны и блоки
       const blockMapping = new Map<number, number>(); // старый ID -> новый ID
+      const templateMapping = new Map<string, string>(); // старый templateId -> новый templateId
       
+      // Сначала копируем все уникальные шаблоны и блоки
       for (const originalPage of originalPages) {
-        if (originalPage.template) {
+        if (originalPage.template && !templateMapping.has(originalPage.templateId)) {
           // Копируем все блоки из шаблона
           const templateContent = JSON.parse(originalPage.template.content || '[]');
           const blockIds = extractBlockIdsFromContent(templateContent);
@@ -183,13 +162,29 @@ export class SitesService {
             isGlobal: false, // копии шаблонов не глобальные
           });
 
-          // Обновляем страницу с новым шаблоном
-          const newPageId = pageMapping.get(originalPage.id);
-          if (newPageId) {
-            await this.pagesService.update(newPageId, {
-              templateId: newTemplate.id,
-            });
-          }
+          templateMapping.set(originalPage.templateId, newTemplate.id);
+        }
+      }
+
+      // Теперь копируем страницы с правильными templateId
+      for (const originalPage of originalPages) {
+        const newTemplateId = templateMapping.get(originalPage.templateId);
+        if (newTemplateId) {
+          await this.pagesService.create({
+            title: originalPage.title,
+            slug: `${originalPage.slug}-copy-${currentDate}`,
+            metaDescription: originalPage.metaDescription,
+            metaKeywords: originalPage.metaKeywords,
+            cityId: originalPage.cityId,
+            siteId: savedSite.id,
+            templateId: newTemplateId,
+            partnerId: originalPage.partnerId,
+            isActive: originalPage.isActive,
+            isMain: false, // копии не могут быть главными страницами
+            parentId: originalPage.parentId,
+            isGlobal: false,
+            isThankYouPage: originalPage.isThankYouPage,
+          });
         }
       }
 
