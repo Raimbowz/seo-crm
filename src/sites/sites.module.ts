@@ -13,6 +13,7 @@ import { BlocksModule } from '../blocks/blocks.module';
 import { AuthModule } from '../auth/auth.module';
 import { VariablesModule } from '../variables/variables.module';
 import { CitiesModule } from '../cities/cities.module';
+import { ImagesModule } from '../images/images.module';
 import { VariableReplacementService } from '../common/services/variable-replacement.service';
 
 @Module({
@@ -30,6 +31,7 @@ import { VariableReplacementService } from '../common/services/variable-replacem
     AuthModule,
     VariablesModule,
     CitiesModule,
+    ImagesModule,
   ],
   providers: [SitesService, VariableReplacementService],
   controllers: [SitesController],

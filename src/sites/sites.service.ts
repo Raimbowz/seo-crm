@@ -86,10 +86,11 @@ export class SitesService {
     if (dto.copyVariables !== false) {
       const siteVariables = await this.variablesService.findBySiteId(id);
       for (const variable of siteVariables) {
-        await this.variablesService.create({
+        await this.variablesService.createVariable({
+          name: variable.name,
           key: variable.key,
           value: variable.value,
-          description: variable.description,
+          comment: variable.comment,
           siteId: savedSite.id,
           isActive: variable.isActive,
         });
@@ -98,7 +99,7 @@ export class SitesService {
 
     // Копируем изображения (только записи в БД, не глобальные)
     if (dto.copyImages !== false) {
-      const siteImages = await this.imagesService.findBySiteId(id);
+      const siteImages = await this.imagesService.findAll(id, false);
       for (const image of siteImages) {
         if (!image.isGlobal) {
           await this.imagesService.create({
@@ -122,16 +123,19 @@ export class SitesService {
     // Копируем страницы
     for (const originalPage of originalPages) {
       const newPage = await this.pagesService.create({
-        ...originalPage,
-        id: undefined,
-        siteId: savedSite.id,
-        name: originalPage.name,
-        slug: originalPage.slug,
-        metaTitle: originalPage.metaTitle,
+        title: originalPage.title,
+        slug: `${originalPage.slug}-copy-${currentDate}`,
         metaDescription: originalPage.metaDescription,
-        templateId: undefined, // будет установлен позже
-        createdAt: undefined,
-        updatedAt: undefined,
+        metaKeywords: originalPage.metaKeywords,
+        cityId: originalPage.cityId,
+        siteId: savedSite.id,
+        templateId: 'temp', // временный ID, будет обновлен позже
+        partnerId: originalPage.partnerId,
+        isActive: originalPage.isActive,
+        isMain: false, // копии не могут быть главными страницами
+        parentId: originalPage.parentId,
+        isGlobal: false,
+        isThankYouPage: originalPage.isThankYouPage,
       });
       pageMapping.set(originalPage.id, newPage.id);
     }
@@ -150,12 +154,10 @@ export class SitesService {
             const originalBlock = await this.blocksService.findOne(blockId);
             if (originalBlock && (dto.copyGlobalBlocks !== false || !originalBlock.isGlobal)) {
               const newBlock = await this.blocksService.create({
-                ...originalBlock,
-                id: undefined,
                 name: `${originalBlock.name} - Копия ${currentDate}`,
+                type: originalBlock.type,
+                content: originalBlock.content,
                 isGlobal: false, // копии блоков не глобальные
-                createdAt: undefined,
-                updatedAt: undefined,
               });
               blockMapping.set(blockId, newBlock.id);
             }
@@ -167,12 +169,13 @@ export class SitesService {
         
         // Создаем новый шаблон
         const newTemplate = await this.templatesService.create({
-          ...originalPage.template,
-          id: undefined,
           name: `${originalPage.template.name} - Копия ${currentDate}`,
+          description: originalPage.template.description,
           content: JSON.stringify(updatedContent),
-          createdAt: undefined,
-          updatedAt: undefined,
+          type: originalPage.template.type,
+          siteId: savedSite.id,
+          isActive: originalPage.template.isActive,
+          isGlobal: false, // копии шаблонов не глобальные
         });
 
         // Обновляем страницу с новым шаблоном
