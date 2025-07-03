@@ -158,7 +158,7 @@ export class PartnersService {
     await this.partnerRepository.remove(partner);
   }
 
-  async sendLeadToPartner(partner: Partner, leadData: any): Promise<boolean> {
+  async sendLeadToPartner(partner: Partner, leadData: any): Promise<{ success: boolean; error?: string; statusCode?: number; message?: string }> {
     try {
       // Parse field mapping
       const fieldMapping = JSON.parse(partner.fieldMapping);
@@ -266,16 +266,38 @@ export class PartnersService {
       this.logger.log(
         `Successfully sent lead to partner ${partner.name}. Status: ${response.status}`,
       );
-      return true;
+      return { success: true };
     } catch (error) {
       this.logger.error(
         `Failed to send lead to partner ${partner.name}:`,
         error.message,
       );
+      
       if (error.response) {
-        this.logger.error('Response data:', error.response.data);
+        const statusCode = error.response.status;
+        const responseData = error.response.data;
+        this.logger.error('Response data:', responseData);
+        
+        // Определяем тип ошибки по статус коду
+        if (statusCode === 422) {
+          const message = responseData?.message || 'Validation error';
+          this.logger.warn(`❌ Validation error from partner ${partner.name}: ${message}`);
+          return { success: false, error: 'validation', statusCode, message };
+        } else if (statusCode >= 400 && statusCode < 500) {
+          const message = responseData?.message || 'Client error';
+          this.logger.warn(`❌ Client error from partner ${partner.name}: ${message}`);
+          return { success: false, error: 'client', statusCode, message };
+        } else if (statusCode >= 500) {
+          const message = responseData?.message || 'Server error';
+          this.logger.warn(`❌ Server error from partner ${partner.name}: ${message}`);
+          return { success: false, error: 'server', statusCode, message };
+        }
+      } else {
+        this.logger.error(`❌ Network or timeout error for partner ${partner.name}`);
+        return { success: false, error: 'network', message: error.message };
       }
-      return false;
+      
+      return { success: false, error: 'unknown', message: error.message };
     }
   }
 }

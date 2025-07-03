@@ -124,12 +124,12 @@ export class LeadQueueService {
       }
 
       // Отправляем лид партнеру
-      const success = await this.partnersService.sendLeadToPartner(
+      const result = await this.partnersService.sendLeadToPartner(
         partner,
         leadData,
       );
 
-      if (success) {
+      if (result.success) {
         // Успешно отправлено
         await this.updateStatus(entry.id, LeadQueueStatus.SENT, {
           completedAt: new Date(),
@@ -137,10 +137,20 @@ export class LeadQueueService {
         });
 
         this.logger.log(
-          `Successfully sent lead ${entry.leadId} to partner ${entry.partnerId}`,
+          `✅ Successfully sent lead ${entry.leadId} to partner ${entry.partnerId}`,
         );
       } else {
-        throw new Error('Partner service returned false');
+        // Детальная обработка ошибок
+        let errorMessage = `${result.error}: ${result.message}`;
+        if (result.statusCode) {
+          errorMessage += ` (HTTP ${result.statusCode})`;
+        }
+        
+        this.logger.error(
+          `❌ Failed to send lead ${entry.leadId} to partner ${entry.partnerId}: ${errorMessage}`,
+        );
+        
+        throw new Error(errorMessage);
       }
     } catch (error) {
       this.logger.error(
@@ -154,6 +164,7 @@ export class LeadQueueService {
         await this.updateStatus(entry.id, LeadQueueStatus.ERROR, {
           completedAt: new Date(),
           errorMessage: `Max attempts reached: ${error.message}`,
+          partnerResponse: error.message,
         });
       } else {
         // Планируем повторную попытку через 5 минут
