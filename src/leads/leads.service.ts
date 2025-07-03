@@ -75,8 +75,8 @@ export class LeadsService {
     redirectUrl?: string;
   }> {
     try {
-      // Extract IP address from request
-      const ip = this.extractClientIP(req);
+      // Use IP address from form data (determined by backend-router)
+      const ip = formData.ip || '';
 
       // Use country code from form data
       const countryCode = formData.country_code || formData.countryCode || '';
@@ -156,27 +156,5 @@ export class LeadsService {
     }
   }
 
-  private extractClientIP(req: Request): string {
-    // Try various headers to get the real client IP
-    const forwarded = req.headers['x-forwarded-for'];
-    const realIP = req.headers['x-real-ip'];
-    const cfConnectingIP = req.headers['cf-connecting-ip'];
-
-    if (typeof forwarded === 'string') {
-      // X-Forwarded-For can contain multiple IPs, take the first one
-      return forwarded.split(',')[0].trim();
-    }
-
-    if (typeof realIP === 'string') {
-      return realIP;
-    }
-
-    if (typeof cfConnectingIP === 'string') {
-      return cfConnectingIP;
-    }
-
-    // Fallback to connection remote address
-    return req.socket.remoteAddress || req.ip || '';
-  }
 
 }
