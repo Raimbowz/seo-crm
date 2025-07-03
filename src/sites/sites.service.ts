@@ -142,6 +142,7 @@ export class SitesService {
                   type: originalBlock.type,
                   content: originalBlock.content,
                   isGlobal: false, // копии блоков не глобальные
+                  siteId: savedSite.id,
                 });
                 blockMapping.set(blockId, newBlock.id);
               }
