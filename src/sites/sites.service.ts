@@ -56,7 +56,89 @@ export class SitesService {
   }
 
   async remove(id: number) {
-    return await this.siteRepository.delete(id);
+    try {
+      console.log(`Starting site deletion for ID: ${id}`);
+      
+      // Удаляем все связанные переменные сайта
+      const siteVariables = await this.variablesService.findBySiteId(id);
+      console.log(`Found ${siteVariables.length} variables to delete`);
+      
+      for (const variable of siteVariables) {
+        await this.variablesService.deleteVariable(variable.id);
+      }
+      
+      // Удаляем все связанные изображения сайта
+      const siteImages = await this.imagesService.findAll(id, false);
+      console.log(`Found ${siteImages.length} images to delete`);
+      
+      for (const image of siteImages) {
+        if (!image.isGlobal) {
+          await this.imagesService.remove(image.id);
+        }
+      }
+      
+      // Получаем все страницы для удаления связанных шаблонов и блоков
+      const pages = await this.pagesService.findBySiteId(id);
+      console.log(`Found ${pages.length} pages to process`);
+      
+      const templateIds = new Set<string>();
+      const blockIds = new Set<number>();
+      
+      // Собираем ID шаблонов и блоков
+      for (const page of pages) {
+        if (page.templateId) {
+          templateIds.add(page.templateId);
+        }
+        
+        if (page.template?.content) {
+          try {
+            const content = JSON.parse(page.template.content);
+            const pageBlockIds = extractBlockIdsFromContent(content);
+            pageBlockIds.forEach(blockId => blockIds.add(blockId));
+          } catch (error) {
+            console.warn(`Failed to parse template content for page ${page.id}:`, error);
+          }
+        }
+      }
+      
+      // Удаляем страницы
+      for (const page of pages) {
+        await this.pagesService.remove(page.id);
+      }
+      
+      // Удаляем блоки (только те, что принадлежат этому сайту)
+      for (const blockId of blockIds) {
+        try {
+          const block = await this.blocksService.findOne(blockId);
+          if (block && block.siteId === id) {
+            await this.blocksService.remove(blockId);
+          }
+        } catch (error) {
+          console.warn(`Failed to delete block ${blockId}:`, error);
+        }
+      }
+      
+      // Удаляем шаблоны (только те, что принадлежат этому сайту)
+      for (const templateId of templateIds) {
+        try {
+          const template = await this.templatesService.findOne(templateId);
+          if (template && template.siteId === id) {
+            await this.templatesService.remove(templateId);
+          }
+        } catch (error) {
+          console.warn(`Failed to delete template ${templateId}:`, error);
+        }
+      }
+      
+      // Наконец удаляем сам сайт
+      const result = await this.siteRepository.delete(id);
+      console.log(`Site ${id} deleted successfully`);
+      
+      return result;
+    } catch (error) {
+      console.error(`Error deleting site ${id}:`, error);
+      throw error;
+    }
   }
 
   async clone(id: number, dto: CloneSiteDto, userId: number) {
