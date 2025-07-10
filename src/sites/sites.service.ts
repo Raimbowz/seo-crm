@@ -327,7 +327,14 @@ export class SitesService {
     pages.forEach((page, pageIdx) => {
       if (page.template && page.template.content) {
         try {
-          const content = JSON.parse(page.template.content);
+          // Поддерживаем как новый формат (массив объектов), так и старый (JSON строка)
+          let content;
+          if (typeof page.template.content === 'string') {
+            content = JSON.parse(page.template.content);
+          } else {
+            content = page.template.content; // уже массив объектов
+          }
+          
           pageTemplateContents.push({
             pageIdx,
             template: page.template,
@@ -335,7 +342,9 @@ export class SitesService {
           });
           const ids = extractBlockIdsFromContent(content);
           allBlockIds.push(...ids);
-        } catch {}
+        } catch (error) {
+          console.warn(`Failed to parse template content for page ${page.id}:`, error);
+        }
       }
     });
 
@@ -354,21 +363,48 @@ export class SitesService {
           if (row.columns && Array.isArray(row.columns)) {
             for (const col of row.columns) {
               if (col.blocks && Array.isArray(col.blocks)) {
-                for (const block of col.blocks) {
-                  if (block.value) {
-                    const id = Number(block.value);
+                for (const blockData of col.blocks) {
+                  // Поддерживаем разные форматы блоков
+                  let blockId;
+                  
+                  if (typeof blockData === 'object' && blockData !== null) {
+                    // Новый формат: {label: "...", value: "...", type: "..."}
+                    if (blockData.value) {
+                      blockId = blockData.value;
+                    }
+                    // Формат с uid: {uid: "...", id: "..."}
+                    else if (blockData.id) {
+                      blockId = blockData.id;
+                    }
+                  } else {
+                    // Старый формат: просто ID как строка или число
+                    blockId = blockData;
+                  }
+                  
+                  if (blockId) {
+                    const id = Number(blockId);
                     if (!isNaN(id) && blockMap.has(id)) {
-                      const blockData = { ...blockMap.get(id) };
+                      const blockContent = { ...blockMap.get(id) };
                       // Преобразуем blockContent.content в объект, если это строка и это JSON
                       if (
-                        blockData.content &&
-                        typeof blockData.content === 'string'
+                        blockContent.content &&
+                        typeof blockContent.content === 'string'
                       ) {
                         try {
-                          blockData.content = JSON.parse(blockData.content);
+                          blockContent.content = JSON.parse(blockContent.content);
                         } catch {}
                       }
-                      block.blockContent = blockData;
+                      
+                      // Для объектного формата добавляем blockContent
+                      if (typeof blockData === 'object' && blockData !== null) {
+                        blockData.blockContent = blockContent;
+                      } else {
+                        // Для старого формата создаем структуру
+                        col.blocks[col.blocks.indexOf(blockData)] = {
+                          id: blockId,
+                          blockContent: blockContent
+                        };
+                      }
                     }
                   }
                 }
@@ -459,9 +495,26 @@ function extractBlockIdsFromContent(content: any): number[] {
       if (row.columns && Array.isArray(row.columns)) {
         for (const col of row.columns) {
           if (col.blocks && Array.isArray(col.blocks)) {
-            for (const block of col.blocks) {
-              if (block.value) {
-                const id = Number(block.value);
+            for (const blockData of col.blocks) {
+              // Поддерживаем разные форматы блоков
+              let blockId;
+              
+              if (typeof blockData === 'object' && blockData !== null) {
+                // Новый формат: {label: "...", value: "...", type: "..."}
+                if (blockData.value) {
+                  blockId = blockData.value;
+                }
+                // Формат с uid: {uid: "...", id: "..."}
+                else if (blockData.id) {
+                  blockId = blockData.id;
+                }
+              } else {
+                // Старый формат: просто ID как строка или число
+                blockId = blockData;
+              }
+              
+              if (blockId) {
+                const id = Number(blockId);
                 if (!isNaN(id)) ids.push(id);
               }
             }
