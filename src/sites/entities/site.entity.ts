@@ -156,6 +156,14 @@ export class Site {
   @Column({ type: 'text', nullable: true })
   globalMetaDescription: string;
 
+  @ApiProperty({
+    example: '+7 (800) 555-0123',
+    description: 'Main site phone number for medical themes',
+    required: false,
+  })
+  @Column({ type: 'text', nullable: true })
+  phone: string;
+
   @OneToMany(() => Page, (page) => page.site)
   pages: Page[];
 

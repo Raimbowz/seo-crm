@@ -168,4 +168,14 @@ export class CreateSiteDto {
   @IsOptional()
   @IsString()
   globalMetaDescription?: string;
+
+  @ApiProperty({
+    example: '+7 (800) 555-0123',
+    description: 'Main site phone number for medical themes',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  phone?: string;
 }
