@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule } from '../config/config.module';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
