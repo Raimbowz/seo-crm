@@ -17,6 +17,7 @@ import { SiteAccessModule } from './site-access/site-access.module';
 import { LocalizationsModule } from './localizations/localizations.module';
 import { UsersProxyModule } from './users-proxy/users-proxy.module';
 import { LeadQueueModule } from './lead-queue/lead-queue.module';
+import { AiModule } from './ai/ai.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
@@ -38,6 +39,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     LocalizationsModule,
     UsersProxyModule,
     LeadQueueModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
