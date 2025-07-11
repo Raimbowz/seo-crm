@@ -164,6 +164,14 @@ export class Site {
   @Column({ type: 'text', nullable: true })
   phone: string;
 
+  @ApiProperty({
+    example: false,
+    description: 'Whether AI translations are enabled for this site',
+    required: false,
+  })
+  @Column({ default: false })
+  aiTranslationsEnabled: boolean;
+
   @OneToMany(() => Page, (page) => page.site)
   pages: Page[];
 

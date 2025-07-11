@@ -178,4 +178,13 @@ export class CreateSiteDto {
   @IsString()
   @MaxLength(20)
   phone?: string;
+
+  @ApiProperty({
+    example: false,
+    description: 'Whether AI translations are enabled for this site',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  aiTranslationsEnabled?: boolean;
 }

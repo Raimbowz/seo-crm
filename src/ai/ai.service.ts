@@ -24,10 +24,13 @@ export class AiService {
   async translateBlock(data: TranslateBlockDto): Promise<TranslateBlockResponseDto> {
     try {
       this.logger.log(`Translating block from ${data.sourceLanguage} to ${data.targetLanguages.join(', ')}`);
+      this.logger.log(`Block data structure: ${JSON.stringify(data.blockData, null, 2)}`);
       
       const sourceContent = this.extractTranslatableContent(data.blockData, data.sourceLanguage);
+      this.logger.log(`Extracted source content: ${JSON.stringify(sourceContent, null, 2)}`);
       
       if (!sourceContent || Object.keys(sourceContent).length === 0) {
+        this.logger.error(`No translatable content found for source language: ${data.sourceLanguage}`);
         return {
           success: false,
           translations: {},
@@ -65,9 +68,18 @@ export class AiService {
 
   private extractTranslatableContent(blockData: any, sourceLanguage: string): any {
     // Извлекаем контент для перевода из блока
+    this.logger.log(`Looking for content in language: ${sourceLanguage}`);
+    this.logger.log(`Available locales: ${blockData.locales ? Object.keys(blockData.locales) : 'none'}`);
+    
     if (blockData.locales && blockData.locales[sourceLanguage]) {
       return blockData.locales[sourceLanguage];
     }
+    
+    // Альтернативный способ - проверяем прямо в корне блока
+    if (blockData[sourceLanguage]) {
+      return blockData[sourceLanguage];
+    }
+    
     return null;
   }
 
